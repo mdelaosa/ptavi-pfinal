@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<config>
+	<account username=" " passwd=" "/>
+	<uaserver ip=" " puerto=" "/>
+	<rtpaudio puerto=" "/>
+	<regproxy ip=" " puerto=" "/>
+	<log path=" "/>
+	<audio path="./cancion.mp3/"/>
+</config>
+
+
+
