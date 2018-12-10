@@ -30,6 +30,13 @@ try:
                     'log': ['path'],
                     'audio': ['path']}
         self.dicxml = {}
+
+    def startElement(self, tag, attrs):
+        if tag in self.dic.keys():
+            print(tag)
+            for parameters in self.dic[tag]:
+                self.dicxml[parameters] = attrs.get(parameters, '')
+
         print('USER:' + USERNAME + 'IP:' + IP + 'PORT:' + PORT)
         print(self.dicxml)
 
