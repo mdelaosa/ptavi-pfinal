@@ -3,38 +3,48 @@
 """Cliente UA práctica final María de la Osa."""
 
 import sys
+import json
 import socket
 import time
 import os
 
 
-def log(self, fichlog):
-    with open(fichlog, 'w') as log:
-        json.dump(self.data, log, indent=3)
+def log(self):
+    with open(CONFIG, 'w') as log:
+        json.dump(self.dicxml, log, indent=3)
 
 
 try:
     CONFIG = sys.argv[1]  # Fichero XML.
-    METHOD = sys.argv[2]  # Método SIP.
-    OPTION = sys.argv[3]  # Parámetro opcional.
+    #METHOD = sys.argv[2]  # Método SIP.
+    #OPTION = sys.argv[3]  # Parámetro opcional.
 
-    file = open(CONFIG, 'r')
-    line = file.readlines()
 
-    USERNAME = str(line[4].split('="')[1].split('"'))
-    IP = str(line[5].split('="')[1].split('"'))
-    PORT = str(line[5].split('="')[2].split('"'))
-    print('USER:' + USERNAME + 'IP:' + IP + 'PORT:' + PORT)
+    def __init__(self):
+        file = open(CONFIG, 'r')
+        line = file.readlines()
+        self.dicxml = {'account': ['username', 'passwd'],
+                       'uaserver': ['ip', 'puerto'],
+                       'rtpaudio': ['puerto'],
+                       'regproxy': ['ip', 'puerto'],
+                       'log': ['path'],
+                       'audio': ['path']}
 
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
+        USERNAME = str(line[4].split('="')[1].split('"'))
+        IP = str(line[5].split('="')[1].split('"'))
+        PORT = str(line[5].split('="')[2].split('"'))
+        print('USER:' + USERNAME + 'IP:' + IP + 'PORT:' + PORT)
+        print(self.dicxml)
+
+    '''with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
         my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        my_socket.connect((server, PORT))
+        my_socket.connect(PORT)
 
         if METHOD == 'REGISTER':
             #password = line[4].split('="')[2].split('"')
             USER = ('REGISTER sip:' + USERNAME + ':' + PORT + 'SIP/2.0\r\n' + 'Expires:' + OPTION + '\r\n')
             print(USER)
-            '''if  :
+            if  :
                 print('SIP/2.0 401 Unaunthorized')
                 print('WWW Authenticate: Digest nonce="898989898798989898989')
             else:
@@ -43,8 +53,8 @@ try:
         if METHOD == 'INVITE':
     
         if METHOD == 'BYE':
-    '''
-    file.close()
+   
+    file.close() '''
 except IndexError:
     print("Usage: python3 uaclient.py config method option")
 
