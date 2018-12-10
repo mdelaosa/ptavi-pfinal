@@ -4,6 +4,8 @@
 
 import sys
 import json
+from xml.sax import make_parser
+from xml.sax.handler import ContentHandler
 import socket
 import time
 import os
@@ -21,18 +23,13 @@ try:
 
 
     def __init__(self):
-        file = open(CONFIG, 'r')
-        line = file.readlines()
-        self.dicxml = {'account': ['username', 'passwd'],
-                       'uaserver': ['ip', 'puerto'],
-                       'rtpaudio': ['puerto'],
-                       'regproxy': ['ip', 'puerto'],
-                       'log': ['path'],
-                       'audio': ['path']}
-
-        USERNAME = str(line[4].split('="')[1].split('"'))
-        IP = str(line[5].split('="')[1].split('"'))
-        PORT = str(line[5].split('="')[2].split('"'))
+        self.dic = {'account': ['username', 'passwd'],
+                    'uaserver': ['ip', 'puerto'],
+                    'rtpaudio': ['puerto'],
+                    'regproxy': ['ip', 'puerto'],
+                    'log': ['path'],
+                    'audio': ['path']}
+        self.dicxml = {}
         print('USER:' + USERNAME + 'IP:' + IP + 'PORT:' + PORT)
         print(self.dicxml)
 
