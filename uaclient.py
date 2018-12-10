@@ -18,9 +18,13 @@ def log(self):
 
 try:
     CONFIG = sys.argv[1]  # Fichero XML.
-    #METHOD = sys.argv[2]  # Método SIP.
-    #OPTION = sys.argv[3]  # Parámetro opcional.
+    METHOD = sys.argv[2]  # Método SIP.
+    OPTION = sys.argv[3]  # Parámetro opcional.
 
+except IndexError:
+    print("Usage: python3 uaclient.py config method option")
+
+class DocumentXML(ContentHandler):
 
     def __init__(self):
         self.dic = {'account': ['username', 'passwd'],
@@ -29,16 +33,17 @@ try:
                     'regproxy': ['ip', 'puerto'],
                     'log': ['path'],
                     'audio': ['path']}
-        self.dicxml = {}
+        self.data = {}
 
     def startElement(self, tag, attrs):
         if tag in self.dic.keys():
             print(tag)
             for parameters in self.dic[tag]:
-                self.dicxml[parameters] = attrs.get(parameters, '')
+                self.data[tag + ' ' + parameters] = attrs.get(parameters, '')
 
-        print('USER:' + USERNAME + 'IP:' + IP + 'PORT:' + PORT)
-        print(self.dicxml)
+    def get_tags(self):
+        return self.data
+
 
     '''with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
         my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -59,12 +64,18 @@ try:
         if METHOD == 'BYE':
    
     file.close() '''
-except IndexError:
-    print("Usage: python3 uaclient.py config method option")
 
 def datetime():
     time_actual = int(time.time())
     time_actual_str = time.strftime('%Y-%m-%d %H:%M:%S',
                                     time.gmtime(time_actual))
 
+
+if __name__ == '__main__':
+    parser = make_parser()
+    Handler = DocumentXML()
+    parser.setContentHandler(Handler)
+    parser.parse(open(sys.argv[1]))
+    data = Handler.get_tags()
+    print(data)
 
