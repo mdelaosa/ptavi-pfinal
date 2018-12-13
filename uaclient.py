@@ -24,6 +24,13 @@ try:
 except IndexError:
     print("Usage: python3 uaclient.py config method option")
 
+
+def log(Operacion):
+    time_actual= time.strftime('%Y-%m-%d %H:%M:%S',
+                                    time.gmtime(time.time()))
+    file.write(time_actual + ' ' + Operacion)
+
+
 class DocumentXML(ContentHandler):
 
     def __init__(self):
@@ -65,10 +72,6 @@ class DocumentXML(ContentHandler):
    
     file.close() '''
 
-def datetime():
-    time_actual = int(time.time())
-    time_actual_str = time.strftime('%Y-%m-%d %H:%M:%S',
-                                    time.gmtime(time_actual))
 
 
 if __name__ == '__main__':
