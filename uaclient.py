@@ -15,7 +15,6 @@ import os
     with open(CONFIG, 'w') as log:
         json.dump(self.dicxml, log, indent=3)'''
 
-
 try:
     CONFIG = sys.argv[1]  # Fichero XML.
     METHOD = sys.argv[2]  # Método SIP.
@@ -26,8 +25,10 @@ except IndexError:
 
 
 def log(operacion):
-    time_actual= time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time()))
+    time_actual = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time()))
+    logfile = open(LOGFILE, 'w')
     logfile.write(time_actual + ' ' + operacion)
+    logfile.close()
 
 
 class DocumentXML(ContentHandler):
@@ -58,7 +59,7 @@ if __name__ == '__main__':
     data = Handler.get_tags()
     print(data)
 
-    USER = data['account username']
+    USERNAME = data['account username']
     PASSWORD = data['account passwd']
     SERVER = data['uaserver ip']
     PORT = data['uaserver puerto']
@@ -71,18 +72,27 @@ if __name__ == '__main__':
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
         my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         my_socket.connect((SERVER, int(PORT)))
-        code = (METHOD + ' sip:' + USER + ' SIP/2.0\r\n\r\n')
+
+        code = (METHOD + ' sip:' + USERNAME + ' SIP/2.0\r\n\r\n')
         print(code)
         my_socket.send(bytes(code, 'utf-8'))
         data = my_socket.recv(1024)
+        if METHOD == 'REGISTER':
+            USER = (METHOD + 'sip:' + USERNAME + ':' + PORT + 'SIP/2.0\r\n\r\n' +
+                    'Expires:' + OPTION + '\r\n')
+            print(USER)
+            log('Sent to' + SERVER + ':' + PORT + ': ' + USER.split("\r\n\r\n")[0])
+
         if METHOD == 'INVITE' and data.decode('utf-8').split()[-2] == '200':
-            my_socket.send(bytes('ACK sip:' + USER + ' SIP/2.0\r\n\r\n',
+            my_socket.send(bytes('ACK sip:' + USERNAME + ' SIP/2.0\r\n\r\n',
                                  'utf-8'))
             print(data.decode('utf-8'))
+
         if METHOD == 'BYE':
+
             print('FINISHING CONNECTION.')
-        if METHOD == 'REGISTER':
-            USER = ('REGISTER sip:' + USER + ':' + PORT + 'SIP/2.0\r\n' + 'Expires:' + OPTION + '\r\n')
+            USER = (METHOD + 'sip:' + USERNAME + ':' + PORT + 'SIP/2.0\r\n\r\n' +
+                    'Expires:' + OPTION + '\r\n')
             print(USER)
             if :
                 print('SIP/2.0 401 Unaunthorized')
@@ -96,19 +106,17 @@ if __name__ == '__main__':
 
         if METHOD == 'REGISTER':
             #password = line[4].split('="')[2].split('"')
-            USER = ('REGISTER sip:' + USERNAME + ':' + PORT + 'SIP/2.0\r\n' + 'Expires:' + OPTION + '\r\n')
+            USER = ('REGISTER sip:' + USERNAME + ':' + PORT + 'SIP/2.0\r\n'
+                    + 'Expires:' + OPTION + '\r\n')
             print(USER)
             if  :
                 print('SIP/2.0 401 Unaunthorized')
                 print('WWW Authenticate: Digest nonce="898989898798989898989')
             else:
                 print(user + 'Authorizarion:Digest response="123123212312321212123')
-    
+
         if METHOD == 'INVITE':
-    
+
         if METHOD == 'BYE':
-   
+
     file.close() '''
-
-
-
