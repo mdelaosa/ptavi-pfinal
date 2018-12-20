@@ -51,7 +51,9 @@ class DocumentXML(ContentHandler):
     def get_tags(self):
         return self.data
 
+
 if __name__ == '__main__':
+
     parser = make_parser()
     Handler = DocumentXML()
     parser.setContentHandler(Handler)
@@ -76,25 +78,32 @@ if __name__ == '__main__':
         code = (METHOD + ' sip:' + USERNAME + ' SIP/2.0\r\n\r\n')
         print(code)
         my_socket.send(bytes(code, 'utf-8'))
-        data = my_socket.recv(1024)
+        socketdata = my_socket.recv(1024)
         if METHOD == 'REGISTER':
-            USER = (METHOD + 'sip:' + USERNAME + ':' + PORT + 'SIP/2.0\r\n\r\n' +
+            USER = (METHOD + 'sip:' + USERNAME + ':' + PORT + 'SIP/2.0\r\n' +
                     'Expires:' + OPTION + '\r\n')
             print(USER)
-            log('Sent to' + SERVER + ':' + PORT + ': ' + USER.split("\r\n\r\n")[0])
+            log('Sent to' + SERVER + ':' + PORT + ':' + USER.split("\r\n\r\n"))
+            my_socket.send(bytes(USER, 'utf-8'))
+            socketdata = my_socket.recv(1024)
+            log('Received from' + SERVER + ':' + PORT + ': ')
 
         if METHOD == 'INVITE' and data.decode('utf-8').split()[-2] == '200':
             my_socket.send(bytes('ACK sip:' + USERNAME + ' SIP/2.0\r\n\r\n',
                                  'utf-8'))
+            USER = (METHOD + 'sip:' + OPTION + ' SIP/2.0 \r\n Content-Type:'
+                    'application/sdp \r\n\r\n v=0 \r\n o=' + USERNAME + SERVER
+                    + '\r\n s=misesion \r\n t=0 \r\n m=audio ' + AUDIOPORT +
+                    'RTP \r\n')
             print(data.decode('utf-8'))
 
         if METHOD == 'BYE':
 
             print('FINISHING CONNECTION.')
-            USER = (METHOD + 'sip:' + USERNAME + ':' + PORT + 'SIP/2.0\r\n\r\n' +
-                    'Expires:' + OPTION + '\r\n')
+            USER = (METHOD + 'sip:' + USERNAME + ':' + PORT + 'SIP/2.0\r\n\r\n'
+                    + 'Expires:' + OPTION + '\r\n')
             print(USER)
-            if :
+            if:
                 print('SIP/2.0 401 Unaunthorized')
                 print('WWW Authenticate: Digest nonce="898989898798989898989')
             else:
