@@ -11,9 +11,9 @@ import time
 import os
 
 
-def log(self):
+'''def file(self):
     with open(CONFIG, 'w') as log:
-        json.dump(self.dicxml, log, indent=3)
+        json.dump(self.dicxml, log, indent=3)'''
 
 
 try:
@@ -26,9 +26,8 @@ except IndexError:
 
 
 def log(operacion):
-    time_actual= time.strftime('%Y-%m-%d %H:%M:%S',
-                               time.gmtime(time.time()))
-    file.write(time_actual + ' ' + operacion)
+    time_actual= time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time()))
+    logfile.write(time_actual + ' ' + operacion)
 
 
 class DocumentXML(ContentHandler):
@@ -51,66 +50,65 @@ class DocumentXML(ContentHandler):
     def get_tags(self):
         return self.data
 
-    if __name__ == '__main__':
-        parser = make_parser()
-        Handler = DocumentXML()
-        parser.setContentHandler(Handler)
-        parser.parse(open(sys.argv[1]))
-        data = Handler.get_tags()
-        print(data)
+if __name__ == '__main__':
+    parser = make_parser()
+    Handler = DocumentXML()
+    parser.setContentHandler(Handler)
+    parser.parse(open(sys.argv[1]))
+    data = Handler.get_tags()
+    print(data)
 
-        USER = data['account username']
-        PASSWORD = data['account passwd']
-        SERVER = data['uaserver ip']
-        PORT = data['uaserver puerto']
-        AUDIOPORT = data['rtpaudio puerto']
-        PROXY = data['regproxy ip']
-        PROXYPORT = data['regproxy puerto']
-        LOGFILE = data['log path']
-        AUDIOFILE = data['audio path']
+    USER = data['account username']
+    PASSWORD = data['account passwd']
+    SERVER = data['uaserver ip']
+    PORT = data['uaserver puerto']
+    AUDIOPORT = data['rtpaudio puerto']
+    PROXY = data['regproxy ip']
+    PROXYPORT = data['regproxy puerto']
+    LOGFILE = data['log path']
+    AUDIOFILE = data['audio path']
 
-        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
-            my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            my_socket.connect((SERVER, int(PORT)))
-            #code = (METHOD + ' sip:' + USER + ' SIP/2.0\r\n\r\n')
-            #print(code)
-            my_socket.send(bytes(code, 'utf-8'))
-            data = my_socket.recv(1024)
-            if METHOD == 'INVITE' and data.decode('utf-8').split()[-2] == '200':
-                my_socket.send(bytes('ACK sip:' + USER + ' SIP/2.0\r\n\r\n',
-                                     'utf-8'))
-                print(data.decode('utf-8'))
-            if METHOD == 'BYE':
-                print('FINISHING CONNECTION.')
-            if METHOD == 'REGISTER':
-                # password = line[4].split('="')[2].split('"')
-                USER = ('REGISTER sip:' + USER + ':' + PORT + 'SIP/2.0\r\n' + 'Expires:' + OPTION + '\r\n')
-                print(USER)
-                if:
-                    print('SIP/2.0 401 Unaunthorized')
-                    print('WWW Authenticate: Digest nonce="898989898798989898989')
-                else:
-                    print(user + 'Authorizarion:Digest response="123123212312321212123')
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
+        my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        my_socket.connect((SERVER, int(PORT)))
+        code = (METHOD + ' sip:' + USER + ' SIP/2.0\r\n\r\n')
+        print(code)
+        my_socket.send(bytes(code, 'utf-8'))
+        data = my_socket.recv(1024)
+        if METHOD == 'INVITE' and data.decode('utf-8').split()[-2] == '200':
+            my_socket.send(bytes('ACK sip:' + USER + ' SIP/2.0\r\n\r\n',
+                                 'utf-8'))
+            print(data.decode('utf-8'))
+        if METHOD == 'BYE':
+            print('FINISHING CONNECTION.')
+        if METHOD == 'REGISTER':
+            USER = ('REGISTER sip:' + USER + ':' + PORT + 'SIP/2.0\r\n' + 'Expires:' + OPTION + '\r\n')
+            print(USER)
+            if :
+                print('SIP/2.0 401 Unaunthorized')
+                print('WWW Authenticate: Digest nonce="898989898798989898989')
+            else:
+                print(user + 'Authorizarion:Digest response="123123212312321212123')
 
-        '''with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
-            my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            my_socket.connect(PORT)
+    '''with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
+        my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        my_socket.connect(PORT)
+
+        if METHOD == 'REGISTER':
+            #password = line[4].split('="')[2].split('"')
+            USER = ('REGISTER sip:' + USERNAME + ':' + PORT + 'SIP/2.0\r\n' + 'Expires:' + OPTION + '\r\n')
+            print(USER)
+            if  :
+                print('SIP/2.0 401 Unaunthorized')
+                print('WWW Authenticate: Digest nonce="898989898798989898989')
+            else:
+                print(user + 'Authorizarion:Digest response="123123212312321212123')
     
-            if METHOD == 'REGISTER':
-                #password = line[4].split('="')[2].split('"')
-                USER = ('REGISTER sip:' + USERNAME + ':' + PORT + 'SIP/2.0\r\n' + 'Expires:' + OPTION + '\r\n')
-                print(USER)
-                if  :
-                    print('SIP/2.0 401 Unaunthorized')
-                    print('WWW Authenticate: Digest nonce="898989898798989898989')
-                else:
-                    print(user + 'Authorizarion:Digest response="123123212312321212123')
-        
-            if METHOD == 'INVITE':
-        
-            if METHOD == 'BYE':
-       
-        file.close() '''
+        if METHOD == 'INVITE':
+    
+        if METHOD == 'BYE':
+   
+    file.close() '''
 
 
 
