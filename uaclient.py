@@ -3,26 +3,15 @@
 """Cliente UA práctica final María de la Osa."""
 
 import sys
-import json
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 import socket
 import time
-import os
 
 
 '''def file(self):
     with open(CONFIG, 'w') as log:
         json.dump(self.dicxml, log, indent=3)'''
-
-try:
-    CONFIG = sys.argv[1]  # Fichero XML.
-    METHOD = sys.argv[2]  # Método SIP.
-    OPTION = sys.argv[3]  # Parámetro opcional.
-
-except IndexError:
-    print("Usage: python3 uaclient.py config method option")
-
 
 def log(operacion):
     time_actual = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time()))
@@ -61,78 +50,78 @@ if __name__ == '__main__':
     data = Handler.get_tags()
     print(data)
 
-    USERNAME = data['account username']
-    PASSWORD = data['account passwd']
-    SERVER = data['uaserver ip']
-    PORT = data['uaserver puerto']
-    AUDIOPORT = data['rtpaudio puerto']
-    PROXY = data['regproxy ip']
-    PROXYPORT = data['regproxy puerto']
-    LOGFILE = data['log path']
-    AUDIOFILE = data['audio path']
+    try:
+        CONFIG = sys.argv[1]  # Fichero XML.
+        METHOD = sys.argv[2]  # Método SIP.
+        OPTION = sys.argv[3]  # Parámetro opcional.
 
-    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
-        my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        my_socket.connect((SERVER, int(PORT)))
+        USERNAME = data['account username']
+        PASSWORD = data['account passwd']
+        SERVER = data['uaserver ip']
+        PORT = data['uaserver puerto']
+        AUDIOPORT = data['rtpaudio puerto']
+        PROXY = data['regproxy ip']
+        PROXYPORT = data['regproxy puerto']
+        LOGFILE = data['log path']
+        AUDIOFILE = data['audio path']
 
-        '''code = (METHOD + ' sip:' + USERNAME + ' SIP/2.0\r\n\r\n')
-        print(code)
-        my_socket.send(bytes(code, 'utf-8'))
-        socket_data = my_socket.recv(1024)'''
+        USER = ''
 
-        if METHOD == 'REGISTER':
-            USER = (METHOD + 'sip:' + USERNAME + ':' + PORT + 'SIP/2.0\r\n' +
-                    'Expires:' + OPTION + '\r\n')
-            print(USER)
-            log('Sent to ' + SERVER + ':' + PORT + ': ' + ' '.join(USER.split())) #Modificar con proxy(?)
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
+            my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            my_socket.connect((SERVER, int(PORT))) # Modificar con proxy
             my_socket.send(bytes(USER, 'utf-8'))
             socket_data = my_socket.recv(1024)
-            log('Received from' + SERVER + ':' + PORT + ': ' + str(socket_data)) #Modificar con proxy(?)
-            print(socket_data.decode('utf-8'))
 
-        if METHOD == 'INVITE' and socket_data.decode('utf-8').split()[-2] == '200':
-            my_socket.send(bytes('ACK sip:' + USERNAME + ' SIP/2.0\r\n\r\n',
-                                 'utf-8'))
-            USER = (METHOD + 'sip:' + OPTION + ' SIP/2.0 \r\n Content-Type:'
-                    'application/sdp \r\n\r\n v=0 \r\n o=' + USERNAME + SERVER
-                    + '\r\n s=misesion \r\n t=0 \r\n m=audio ' + AUDIOPORT +
-                    'RTP \r\n')
-            print(USER)
-            log('Sent to ' + SERVER + ':' + PORT + ': ' + ' '.join(USER.split()))
-            my_socket.send(bytes(USER, 'utf-8'))
-            socket_data = my_socket.recv(1024)
-            log('Received from' + SERVER + ':' + PORT + ': ' + str(socket_data))  #Modificar con proxy(?)
-            print(socket_data.decode('utf-8'))
+            if METHOD == 'REGISTER':
+                USER = (METHOD + ' sip:' + USERNAME + ':' + PORT + 'SIP/2.0\r\n' +
+                        'Expires:' + OPTION + '\r\n')
+                print(USER)
+                if PASSWORD == ' ' or PASSWORD != PASSWORD.nonce: # (?)
+                    print('SIP/2.0 401 Unaunthorized')
+                    print('WWW Authenticate: Digest nonce="898989898798989898989')
+                else:
+                    print(USERNAME + 'Authorizarion:Digest response="123123212312321212123')
+                    log('Sent to ' + SERVER + ':' + PORT + ': ' + ' '.join(USER.split())) #Modificar con proxy(?)
+                    my_socket.send(bytes(USER, 'utf-8'))
+                    socket_data = my_socket.recv(1024)
+                    log('Received from' + SERVER + ':' + PORT + ': ' + str(socket_data)) #Modificar con proxy(?)
+                    print(socket_data.decode('utf-8'))
 
-        if METHOD == 'BYE':
+            if METHOD == 'INVITE' and socket_data.decode('utf-8').split()[-2] == '200':
+                my_socket.send(bytes('ACK sip:' + USERNAME + ' SIP/2.0\r\n\r\n',
+                                     'utf-8'))
+                USER = (METHOD + 'sip:' + OPTION + ' SIP/2.0 \r\n Content-Type:'
+                        'application/sdp \r\n\r\n v=0 \r\n o=' + USERNAME + SERVER
+                        + '\r\n s=misesion \r\n t=0 \r\n m=audio ' + AUDIOPORT +
+                        'RTP \r\n')
+                print(USER)
+                log('Sent to ' + SERVER + ':' + PORT + ': ' + ' '.join(USER.split()))
+                my_socket.send(bytes(USER, 'utf-8'))
+                socket_data = my_socket.recv(1024)
+                log('Received from' + SERVER + ':' + PORT + ': ' + str(socket_data))  # Modificar con proxy(?)
+                print(socket_data.decode('utf-8'))
 
-            print('FINISHING CONNECTION.')
-            USER = (METHOD + 'sip:' + USERNAME + ':' + PORT + 'SIP/2.0\r\n\r\n'
-                    + 'Expires:' + OPTION + '\r\n')
-            print(USER)
-            if:
-                print('SIP/2.0 401 Unaunthorized')
-                print('WWW Authenticate: Digest nonce="898989898798989898989')
-            else:
-                print(user + 'Authorizarion:Digest response="123123212312321212123')
+            if METHOD == 'BYE':
+                print('FINISHING CONNECTION.')
+                USER = (METHOD + 'sip:' + USERNAME + ':' + PORT + 'SIP/2.0\r\n\r\n'
+                        + 'Expires:' + OPTION + '\r\n')
+                print(USER)
+                log('Finishing.')
+                my_socket.send(bytes(USER, 'utf-8'))
+                socket_data = my_socket.recv(1024)
+                # log('Received from' + SERVER + ':' + PORT + ': ' + str(socket_data))  #Modificar con proxy(?)
+                # print(socket_data.decode('utf-8'))
 
-    '''with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
-        my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        my_socket.connect(PORT)
+                '''if:
+                    print('SIP/2.0 401 Unaunthorized')
+                    print('WWW Authenticate: Digest nonce="898989898798989898989')
+                else:
+                    print(user + 'Authorizarion:Digest response="123123212312321212123')'''
 
-        if METHOD == 'REGISTER':
-            #password = line[4].split('="')[2].split('"')
-            USER = ('REGISTER sip:' + USERNAME + ':' + PORT + 'SIP/2.0\r\n'
-                    + 'Expires:' + OPTION + '\r\n')
-            print(USER)
-            if  :
-                print('SIP/2.0 401 Unaunthorized')
-                print('WWW Authenticate: Digest nonce="898989898798989898989')
-            else:
-                print(user + 'Authorizarion:Digest response="123123212312321212123')
+            if METHOD != ('REGISTER' or 'INVITE' or 'BYE'):
+                print('Wrong method, try REGISTER, INVITE or BYE')
 
-        if METHOD == 'INVITE':
+    except IndexError:
+        print("Usage: python3 uaclient.py config method option")
 
-        if METHOD == 'BYE':
-
-    file.close() '''
