@@ -8,6 +8,28 @@ from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 import os
 
+
+class DocumentXML(ContentHandler):
+
+    def __init__(self):
+        self.dic = {'account': ['username', 'passwd'],
+                    'uaserver': ['ip', 'puerto'],
+                    'rtpaudio': ['puerto'],
+                    'regproxy': ['ip', 'puerto'],
+                    'log': ['path'],
+                    'audio': ['path']}
+        self.data = []
+
+    def startElement(self, tag, attrs):
+        if tag in self.dic.keys():
+            print(tag)
+            for parameters in self.dic[tag]:
+                self.data[tag + ' ' + parameters] = attrs.get(parameters, '')
+
+    def get_tags(self):
+        return self.data
+
+
 class SIPHandler(socketserver.DatagramRequestHandler):
     """SIP server class."""
 
@@ -24,14 +46,17 @@ class SIPHandler(socketserver.DatagramRequestHandler):
                 self.wfile.write(b"SIP/2.0 100 TRYING...\r\n\r\n" +
                                  b"SIP/2.0 100 RINGING...\r\n\r\n" +
                                  b"SIP/2.0 200 OK...\r\n\r\n")
+                self.wfile.write(b"SIP/2.0 \r\n Content-Type:application/sdp \r\n\r\n v=0 \r\n o='"
+                                 b"+ USERNAME + SERVER + '\r\n s=misesion \r\n t=0 \r\n m=audio '"
+                                 b"+ AUDIOPORT + 'RTP \r\n'")
                 break
             if METHOD == 'ACK':
-                song = 'mp32rtp -i 127.0.0.1 -p 23032 < ' + sys.argv[3]
+                song = 'mp32rtp -i' + SERVER + ' -p ' + PORT +' < ' + AUDIOFILE
                 print('SONG', song)
                 os.system(song)
                 break
             if METHOD == 'BYE':
-                self.wfile.write(b"SIP/2.0 200 OK FINISHIN CONNECTION")
+                self.wfile.write(b"SIP/2.0 200 OK FINISHING CONNECTION")
                 print('FINISHING CONNECTION WITH THE CLIENT')
                 break
             if METHOD != ('INVITE', 'ACK', 'BYE'):
@@ -40,3 +65,33 @@ class SIPHandler(socketserver.DatagramRequestHandler):
             else:
                 self.wfile.write(b"SIP/2.0 400 BAD REQUEST\r\n\r\n")
                 break
+
+
+if __name__ == '__main__':
+
+    parser = make_parser()
+    Handler = DocumentXML()
+    parser.setContentHandler(Handler)
+    parser.parse(open(sys.argv[1]))
+    data = Handler.get_tags()
+    print(data)
+
+    try:
+        CONFIG = sys.argv[1]  # Fichero XML.
+        #METHOD = sys.argv[2]  # Método SIP.
+        #OPTION = sys.argv[3]  # Parámetro opcional.
+
+        USERNAME = data['account username']
+        PASSWORD = data['account passwd']
+        SERVER = data['uaserver ip']
+        PORT = data['uaserver puerto']
+        AUDIOPORT = data['rtpaudio puerto']
+        PROXY = data['regproxy ip']
+        PROXYPORT = data['regproxy puerto']
+        LOGFILE = data['log path']
+        AUDIOFILE = data['audio path']
+
+        USER = ''
+
+    except (IndexError or ValueError):
+        print("Usage: python3 uaserver.py CONFIG")
