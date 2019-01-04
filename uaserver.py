@@ -6,28 +6,8 @@ import sys
 import socketserver
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
+from uaclient import DocumentXML
 import os
-
-
-class DocumentXML(ContentHandler):
-
-    def __init__(self):
-        self.dic = {'account': ['username', 'passwd'],
-                    'uaserver': ['ip', 'puerto'],
-                    'rtpaudio': ['puerto'],
-                    'regproxy': ['ip', 'puerto'],
-                    'log': ['path'],
-                    'audio': ['path']}
-        self.data = []
-
-    def startElement(self, tag, attrs):
-        if tag in self.dic.keys():
-            print(tag)
-            for parameters in self.dic[tag]:
-                self.data[tag + ' ' + parameters] = attrs.get(parameters, '')
-
-    def get_tags(self):
-        return self.data
 
 
 class SIPHandler(socketserver.DatagramRequestHandler):

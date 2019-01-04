@@ -5,6 +5,7 @@ import socket
 import sys
 import time
 from xml.sax.handler import ContentHandler
+from uaclient import DocumentXML
 
 
 class ProxyHandle(ContentHandler):
