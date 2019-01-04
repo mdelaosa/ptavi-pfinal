@@ -7,11 +7,13 @@ from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 import socket
 import time
+import os
 
 
 '''def file(self):
     with open(CONFIG, 'w') as log:
         json.dump(self.dicxml, log, indent=3)'''
+
 
 def log(operacion):
     time_actual = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time()))
@@ -29,7 +31,7 @@ class DocumentXML(ContentHandler):
                     'regproxy': ['ip', 'puerto'],
                     'log': ['path'],
                     'audio': ['path']}
-        self.data = {}
+        self.data = []
 
     def startElement(self, tag, attrs):
         if tag in self.dic.keys():
@@ -101,6 +103,8 @@ if __name__ == '__main__':
                 socket_data = my_socket.recv(1024)
                 log('Received from' + SERVER + ':' + PORT + ': ' + str(socket_data))  # Modificar con proxy(?)
                 print(socket_data.decode('utf-8'))
+                aEjecutar = "./mp3rtp -i" + SERVER + " -p " + PORT + " < " + AUDIOFILE
+                os.system(aEjecutar)
 
             if METHOD == 'BYE':
                 print('FINISHING CONNECTION.')
@@ -122,6 +126,9 @@ if __name__ == '__main__':
             if METHOD != ('REGISTER' or 'INVITE' or 'BYE'):
                 print('Wrong method, try REGISTER, INVITE or BYE')
 
-    except IndexError:
+    except ConnectionRefusedError:
+        print("Server not found")
+
+    except (IndexError or ValueError):
         print("Usage: python3 uaclient.py config method option")
 
