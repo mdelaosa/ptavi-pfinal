@@ -100,24 +100,23 @@ if __name__ == '__main__':
                     Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': ' + str(data)) #data.decode(?)
                     print('Received: ', data.decode('utf-8'))
 
-            if METHOD == 'INVITE' and data.decode('utf-8').split()[-2] == '200':
-
+            if METHOD == 'INVITE':
                 USER = (METHOD + 'sip:' + OPTION + ' SIP/2.0 \r\n Content-Type:'
                         'application/sdp \r\n\r\n v=0 \r\n o=' + USERNAME + SERVER
                         + '\r\n s=misesion \r\n t=0 \r\n m=audio ' + AUDIOPORT +
                         'RTP \r\n')
                 print(USER)
-                Logging.log('Sent to ' + SERVER + ':' + PORT + ': ' + ' '.join(USER.split()))
+                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' + ' '.join(USER.split()))
                 my_socket.send(bytes(USER, 'utf-8'))
-                socket_data = my_socket.recv(1024)
-                Logging.log('Received from' + SERVER + ':' + PORT + ': ' + str(data)) #data.decode(?) # Modificar con proxy(?)
-                print(socket_data.decode('utf-8'))
+                data = my_socket.recv(1024)
+                Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': ' + str(data)) #data.decode(?)
+                print(data.decode('utf-8'))
                 if '200' in data.decode('utf-8'):
                     my_socket.send(bytes('ACK sip:' + USERNAME + ' SIP/2.0\r\n\r\n',
                                          'utf-8'))
                     aEjecutar = "./mp3rtp -i" + SERVER + " -p " + PORT + " < " + AUDIOFILE #proxy(?)
                     os.system(aEjecutar)
-                    Logging.log('Sent to ' + SERVER + ':' + PORT + ': ' + 'ACK' + ' '.join(aEjecutar.split()))
+                    Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' + 'ACK' + ' '.join(aEjecutar.split()))
 
             if METHOD == 'BYE':
                 print('FINISHING CONNECTION.')
@@ -127,7 +126,7 @@ if __name__ == '__main__':
                 my_socket.send(bytes(USER, 'utf-8'))
                 data = my_socket.recv(1024)
                 Logging.log('Finishing.')
-                # (?) log('Received from' + PROXY + ':' + PROXYPORT + ': ' + str(data))  #data.decode(?)
+                # (?) Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': ' + str(data))  #data.decode(?)
                 print(data.decode('utf-8'))
 
             if METHOD != ('REGISTER' or 'INVITE' or 'BYE'):
