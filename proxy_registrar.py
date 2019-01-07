@@ -4,24 +4,9 @@
 import socket
 import sys
 import time
+from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 from uaclient import DocumentXML
-
-
-class ProxyHandle(ContentHandler):
-
-    def __init__(self):
-        self.dictags = {'server': ['name', 'ip', 'port'], 'database': ['path',
-                        'password_path'], 'log': ['path']}
-
-    def startElement(self, tag, attrs):
-        if tag in self.dictags.keys():
-            print(tag)
-            for parameters in self.dictags[tag]:
-                self.dataproxy[tag + ' ' + parameters] = attrs.get(parameters, '')
-
-    def get_tags(self):
-        return self.dataproxy
 
 if __name__ == '__main__':
 
@@ -33,4 +18,9 @@ if __name__ == '__main__':
     data = Handler.get_tags()
     print(data)
 
+    with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
+        my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        my_socket.connect((PROXY, int(PROXYPORT)))
+        my_socket.send(bytes(USER, 'utf-8'))
+        data = my_socket.recv(1024)
 
