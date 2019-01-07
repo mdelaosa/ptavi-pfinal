@@ -31,7 +31,9 @@ class DocumentXML(ContentHandler):
                     'rtpaudio': ['puerto'],
                     'regproxy': ['ip', 'puerto'],
                     'log': ['path'],
-                    'audio': ['path']}
+                    'audio': ['path'],
+                    'server': ['name', 'ip', 'port'],
+                    'database': ['path', 'password_path']}
         self.opt = []
 
     def startElement(self, tag, attrs):
