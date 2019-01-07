@@ -7,6 +7,8 @@ import socketserver
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 from uaclient import DocumentXML
+from uaclient import Logging
+
 import os
 
 
@@ -23,12 +25,12 @@ class SIPHandler(socketserver.DatagramRequestHandler):
             METHOD = line.split(" ")[0]
             print("THE CLIENT SENT: " + line.decode('utf-8'))
             if METHOD == 'INVITE':
+                msj_sdp = ('SIP/2.0 \r\n Content-Type:application/sdp \r\n\r\n v=0 \r\n o='
+                           + USERNAME + SERVER + '\r\n s=misesion \r\n t=0 \r\n m=audio '
+                           + AUDIOPORT + 'RTP \r\n')
                 self.wfile.write(b"SIP/2.0 100 TRYING...\r\n\r\n" +
                                  b"SIP/2.0 100 RINGING...\r\n\r\n" +
-                                 b"SIP/2.0 200 OK...\r\n\r\n")
-                self.wfile.write(b"SIP/2.0 \r\n Content-Type:application/sdp \r\n\r\n v=0 \r\n o='"
-                                 b"+ USERNAME + SERVER + '\r\n s=misesion \r\n t=0 \r\n m=audio '"
-                                 b"+ AUDIOPORT + 'RTP \r\n'")
+                                 b"SIP/2.0 200 OK...\r\n\r\n" + bytes(msj_sdp))
                 break
             if METHOD == 'ACK':
                 song = 'mp32rtp -i' + SERVER + ' -p ' + PORT +' < ' + AUDIOFILE

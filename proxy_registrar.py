@@ -7,6 +7,8 @@ import time
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 from uaclient import DocumentXML
+from uaclient import Logging
+
 
 if __name__ == '__main__':
 

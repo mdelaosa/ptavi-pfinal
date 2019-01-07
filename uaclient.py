@@ -16,11 +16,12 @@ import hashlib
         json.dump(self.dicxml, log, indent=3)'''
 
 
-def log(operacion):
-    time_actual = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time()))
-    logfile = open(LOGFILE, 'w')
-    logfile.write(time_actual + ' ' + operacion)
-    logfile.close()
+class Logging():
+    def log(operacion):
+        time_actual = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time()))
+        logfile = open(opt['log path'], 'w')
+        logfile.write(time_actual + ' ' + operacion)
+        logfile.close()
 
 
 class DocumentXML(ContentHandler):
@@ -82,8 +83,8 @@ if __name__ == '__main__':
                 print(USER)
                 my_socket.send(bytes(USER, 'utf-8'))
                 data = my_socket.recv(1024)
-                log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' + ' '.join(USER.split()))
-                log('Received from' + PROXY + ':' + PROXYPORT + ': ' + str(data)) #data.decode(?)
+                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' + ' '.join(USER.split()))
+                Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': ' + str(data)) #data.decode(?)
                 print('Received: ', data.decode('utf-8'))
                 if '401 Unauthorized' in data.decode('utf-8'):
                     nonce = data.decode('utf-8').split('=')[-1]
@@ -95,8 +96,8 @@ if __name__ == '__main__':
                     print(data.decode('utf-8'))
                     my_socket.send(bytes(NEW_USER, 'utf-8'))
                     data = my_socket.recv(1024)
-                    log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' + ' '.join(NEW_USER.split()))
-                    log('Received from' + PROXY + ':' + PROXYPORT + ': ' + str(data)) #data.decode(?)
+                    Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' + ' '.join(NEW_USER.split()))
+                    Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': ' + str(data)) #data.decode(?)
                     print('Received: ', data.decode('utf-8'))
 
             if METHOD == 'INVITE' and data.decode('utf-8').split()[-2] == '200':
@@ -106,17 +107,17 @@ if __name__ == '__main__':
                         + '\r\n s=misesion \r\n t=0 \r\n m=audio ' + AUDIOPORT +
                         'RTP \r\n')
                 print(USER)
-                log('Sent to ' + SERVER + ':' + PORT + ': ' + ' '.join(USER.split()))
+                Logging.log('Sent to ' + SERVER + ':' + PORT + ': ' + ' '.join(USER.split()))
                 my_socket.send(bytes(USER, 'utf-8'))
                 socket_data = my_socket.recv(1024)
-                log('Received from' + SERVER + ':' + PORT + ': ' + str(data)) #data.decode(?) # Modificar con proxy(?)
+                Logging.log('Received from' + SERVER + ':' + PORT + ': ' + str(data)) #data.decode(?) # Modificar con proxy(?)
                 print(socket_data.decode('utf-8'))
                 if '200' in data.decode('utf-8'):
                     my_socket.send(bytes('ACK sip:' + USERNAME + ' SIP/2.0\r\n\r\n',
                                          'utf-8'))
                     aEjecutar = "./mp3rtp -i" + SERVER + " -p " + PORT + " < " + AUDIOFILE #proxy(?)
                     os.system(aEjecutar)
-                    log('Sent to ' + SERVER + ':' + PORT + ': ' + 'ACK' + ' '.join(aEjecutar.split()))
+                    Logging.log('Sent to ' + SERVER + ':' + PORT + ': ' + 'ACK' + ' '.join(aEjecutar.split()))
 
             if METHOD == 'BYE':
                 print('FINISHING CONNECTION.')
@@ -125,7 +126,7 @@ if __name__ == '__main__':
                 print(USER)
                 my_socket.send(bytes(USER, 'utf-8'))
                 data = my_socket.recv(1024)
-                log('Finishing.')
+                Logging.log('Finishing.')
                 # (?) log('Received from' + PROXY + ':' + PROXYPORT + ': ' + str(data))  #data.decode(?)
                 print(data.decode('utf-8'))
 
