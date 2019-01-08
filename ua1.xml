@@ -5,7 +5,7 @@
 	<uaserver ip="127.0.0.1" puerto="5555"/>
 	<rtpaudio puerto="23321"/>
 	<regproxy ip="127.0.0.1" puerto="3333"/>
-	<log path=" "/>
+	<log path="logua1.txt"/>
 	<audio path="./cancion.mp3/"/>
 </config>
 
