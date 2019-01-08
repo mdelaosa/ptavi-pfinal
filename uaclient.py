@@ -19,7 +19,7 @@ class Logging:
     def log(operacion):
         time_actual = time.strftime('%Y%m%d%H%M%S', time.gmtime(time.time()))
         logfile = open(opt['log_path'], 'w')
-        logfile.write(time_actual + ' ' + operacion)
+        logfile.write(time_actual + ' ' + str(operacion))
         logfile.close()
 
 
@@ -77,13 +77,15 @@ if __name__ == '__main__':
             my_socket.connect((PROXY, int(PROXYPORT)))
 
             if METHOD == 'REGISTER':
-                USER = (METHOD + ' sip:' + USERNAME + ':' + PORT + 'SIP/2.0\r\n' +
-                        'Expires:' + OPTION + '\r\n')
+                USER = (METHOD + ' sip:' + USERNAME + ':' + PORT +
+                        'SIP/2.0\r\n' + 'Expires:' + OPTION + '\r\n')
                 print(USER)
                 my_socket.send(bytes(USER, 'utf-8'))
                 data = my_socket.recv(1024)
-                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' + ' '.join(USER.split()))
-                Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': ' + str(data)) #data.decode(?)
+                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' +
+                            ' '.join(USER.split()))
+                Logging.log('Received from' + PROXY + ':' + PROXYPORT +
+                            ': ' + str(data)) #data.decode(?)
                 print('Received: ', data.decode('utf-8'))
                 if '401' in data.decode('utf-8'):
                     nonce = data.decode('utf-8').split('=')[-1]
@@ -91,48 +93,55 @@ if __name__ == '__main__':
                     checking.update(bytes(PASSWORD, 'utf-8'))
                     checking.update(bytes(nonce, 'utf-8'))
                     print('SIP/2.0 401 Unaunthorized')
-                    NEW_USER = (USER + 'Authorizatin: Digest response= ' + checking.hexdigest() + '\r\n')
+                    NEW_USER = (USER + 'Authorizatin: Digest response= ' +
+                                checking.hexdigest() + '\r\n')
                     print(data.decode('utf-8'))
                     my_socket.send(bytes(NEW_USER, 'utf-8'))
                     data = my_socket.recv(1024)
-                    Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' + ' '.join(NEW_USER.split()))
-                    Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': ' + str(data)) #data.decode(?)
+                    Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
+                                ': ' + ' '.join(NEW_USER.split()))
+                    Logging.log('Received from' + PROXY + ':' + PROXYPORT +
+                                ': ' + str(data)) #data.decode(?)
                     print('Received: ', data.decode('utf-8'))
 
             if METHOD == 'INVITE':
-                USER = (METHOD + 'sip:' + OPTION + ' SIP/2.0 \r\n Content-Type:'
-                        'application/sdp \r\n\r\n v=0 \r\n o=' + USERNAME + SERVER
-                        + '\r\n s=misesion \r\n t=0 \r\n m=audio ' + AUDIOPORT +
+                USER = (METHOD + 'sip:' + OPTION + ' SIP/2.0 \r\n' +
+                        'Content-Type: application/sdp \r\n\r\n v=0' +
+                        '\r\n o=' + USERNAME + SERVER + '\r\n' +
+                        's=misesion \r\n t=0 \r\n m=audio ' + AUDIOPORT +
                         'RTP \r\n')
                 print(USER)
-                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' + ' '.join(USER.split()))
+                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' +
+                            ' '.join(USER.split()))
                 my_socket.send(bytes(USER, 'utf-8'))
                 data = my_socket.recv(1024)
-                Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': ' + str(data)) #data.decode(?)
+                Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': '
+                            + str(data)) #data.decode(?)
                 print(data.decode('utf-8'))
                 if '200' in data.decode('utf-8'):
-                    my_socket.send(bytes('ACK sip:' + USERNAME + ' SIP/2.0\r\n\r\n',
-                                         'utf-8'))
-                    Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + 'ACK sip:' + USERNAME + ' SIP/2.0\r\n\r\n')
+                    my_socket.send(bytes('ACK sip:' + USERNAME +
+                                         ' SIP/2.0\r\n\r\n', 'utf-8'))
+                    Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
+                                'ACK sip:' + USERNAME + ' SIP/2.0\r\n\r\n')
 
             if METHOD == 'BYE':
                 print('FINISHING CONNECTION.')
-                USER = (METHOD + 'sip:' + USERNAME + ':' + PROXYPORT + 'SIP/2.0\r\n\r\n'
-                        + 'Expires:' + OPTION + '\r\n')
+                USER = (METHOD + 'sip:' + USERNAME + ':' + PROXYPORT +
+                        'SIP/2.0\r\n\r\n' + 'Expires:' + OPTION + '\r\n')
                 print(USER)
                 my_socket.send(bytes(USER, 'utf-8'))
                 data = my_socket.recv(1024)
-                Logging.log('Finishing.')
+                Logging.log('Finishing connection.')
                 # (?) Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': ' + str(data))  #data.decode(?)
                 print(data.decode('utf-8'))
 
             if METHOD != ('REGISTER' or 'INVITE' or 'BYE'):
                 print('Wrong method, try REGISTER, INVITE or BYE')
-                Logging.log('405 ERROR: METHOD NOT ALLOWED')
+                Logging.log('405 ERROR: METHOD NOT ALLOWED.')
 
     except ConnectionRefusedError:
         print("Connection Refused: Server not found")
-        Logging.log('400 ERROR: CONNECTION REFUSED')
+        Logging.log('400 ERROR: CONNECTION REFUSED.')
     except (IndexError or ValueError):
         print("Usage: python3 uaclient.py config method option")
-        Logging.log('400 ERROR: BAD REQUEST')
+        Logging.log('400 ERROR: BAD REQUEST.')
