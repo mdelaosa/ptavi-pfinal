@@ -3,7 +3,7 @@
 <config>
 	<server name=" " ip=" " puerto=" "/>
 	<database path=" " passwdpath=" "/>
-	<log path=" "/>
+	<log path="logpr.txt"/>
 </config>
 
 
