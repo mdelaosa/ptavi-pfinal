@@ -17,7 +17,10 @@ import os
 
 
 class Logging:
+    """Creamos la clase del Log."""
+
     def log(operacion):
+        """Función log."""
         time_actual = time.strftime('%Y%m%d%H%M%S', time.gmtime(time.time()))
         logfile = open(LOGFILE, 'a')
         logfile.write(time_actual + ' ' + str(operacion))
@@ -25,8 +28,10 @@ class Logging:
 
 
 class DocumentXML(ContentHandler):
+    """Creamos la clase del documento XML."""
 
     def __init__(self):
+        """Función principal."""
         self.dic = {'account': ['username', 'passwd'],
                     'uaserver': ['ip', 'puerto'],
                     'rtpaudio': ['puerto'],
@@ -36,12 +41,14 @@ class DocumentXML(ContentHandler):
         self.dicopt = {}
 
     def startElement(self, tag, attrs):
+        """Función atributos."""
         if tag in self.dic.keys():
             print(tag)
             for parameters in self.dic[tag]:
                 self.dicopt[tag + '_' + parameters] = attrs.get(parameters, '')
 
     def get_tags(self):
+        """Función etiquetas."""
         return self.dicopt
 
 
