@@ -7,7 +7,6 @@ from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 import socket
 import time
-import os
 import hashlib
 
 
@@ -18,8 +17,8 @@ import hashlib
 
 class Logging:
     def log(operacion):
-        time_actual = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time()))
-        logfile = open(opt['log path'], 'w')
+        time_actual = time.strftime('%Y%m%d%H%M%S', time.gmtime(time.time()))
+        logfile = open(opt['log_path'], 'w')
         logfile.write(time_actual + ' ' + operacion)
         logfile.close()
 
@@ -35,16 +34,16 @@ class DocumentXML(ContentHandler):
                     'audio': ['path'],
                     'server': ['name', 'ip', 'port'],
                     'database': ['path', 'password_path']}
-        self.opt = {}
+        self.dicopt = {}
 
     def startElement(self, tag, attrs):
         if tag in self.dic.keys():
             print(tag)
             for parameters in self.dic[tag]:
-                self.opt[tag + '_' + parameters] = attrs.get(parameters, '')
+                self.dicopt[tag + '_' + parameters] = attrs.get(parameters, '')
 
     def get_tags(self):
-        return self.opt
+        return self.dicopt
 
 
 if __name__ == '__main__':
@@ -86,7 +85,7 @@ if __name__ == '__main__':
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' + ' '.join(USER.split()))
                 Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': ' + str(data)) #data.decode(?)
                 print('Received: ', data.decode('utf-8'))
-                if '401 Unauthorized' in data.decode('utf-8'):
+                if '401' in data.decode('utf-8'):
                     nonce = data.decode('utf-8').split('=')[-1]
                     checking = hashlib.md5()
                     checking.update(bytes(PASSWORD, 'utf-8'))
@@ -129,9 +128,11 @@ if __name__ == '__main__':
 
             if METHOD != ('REGISTER' or 'INVITE' or 'BYE'):
                 print('Wrong method, try REGISTER, INVITE or BYE')
+                Logging.log('405 ERROR: METHOD NOT ALLOWED')
 
     except ConnectionRefusedError:
         print("Connection Refused: Server not found")
-
+        Logging.log('400 ERROR: CONNECTION REFUSED')
     except (IndexError or ValueError):
         print("Usage: python3 uaclient.py config method option")
+        Logging.log('400 ERROR: BAD REQUEST')
