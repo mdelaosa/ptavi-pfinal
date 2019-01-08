@@ -5,7 +5,6 @@
 import sys
 import socketserver
 from xml.sax import make_parser
-from xml.sax.handler import ContentHandler
 from uaclient import DocumentXML
 from uaclient import Logging
 import os
@@ -37,7 +36,7 @@ class SIPHandler(socketserver.DatagramRequestHandler):
                 aEjecutar = "./mp3rtp -i" + SERVER + " -p " + PORT + " < " + AUDIOFILE
                 print('SONG: ', aEjecutar)
                 os.system(aEjecutar)
-                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': AUDIO SENT')
+                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' + aEjecutar)
                 break
             if METHOD == 'BYE':
                 self.wfile.write(b"SIP/2.0 200 OK FINISHING CONNECTION")
