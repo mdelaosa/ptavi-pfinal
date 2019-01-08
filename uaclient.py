@@ -8,6 +8,7 @@ from xml.sax.handler import ContentHandler
 import socket
 import time
 import hashlib
+import os
 
 
 '''def file(self):
@@ -123,6 +124,10 @@ if __name__ == '__main__':
                                          ' SIP/2.0\r\n\r\n', 'utf-8'))
                     Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
                                 'ACK sip:' + USERNAME + ' SIP/2.0\r\n\r\n')
+                    aEjecutar = "./mp3rtp -i" + SERVER + " -p " + PORT + " < " + AUDIOFILE
+                    print('SONG: ', aEjecutar)
+                    os.system(aEjecutar)
+                    Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' + aEjecutar)
 
             if METHOD == 'BYE':
                 print('FINISHING CONNECTION.')
@@ -141,7 +146,7 @@ if __name__ == '__main__':
 
     except ConnectionRefusedError:
         print("Connection Refused: Server not found")
-        Logging.log('400 ERROR: CONNECTION REFUSED.')
+        Logging.log('400 ERROR: CONNECTION REFUSED.', LOGFILE)
     except (IndexError or ValueError):
         print("Usage: python3 uaclient.py config method option")
         Logging.log('400 ERROR: BAD REQUEST.')
