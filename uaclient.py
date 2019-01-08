@@ -19,7 +19,7 @@ import os
 class Logging:
     def log(operacion):
         time_actual = time.strftime('%Y%m%d%H%M%S', time.gmtime(time.time()))
-        logfile = open(opt['log_path'], 'w')
+        logfile = open(LOGFILE, 'a')
         logfile.write(time_actual + ' ' + str(operacion))
         logfile.close()
 
@@ -84,9 +84,9 @@ if __name__ == '__main__':
                 my_socket.send(bytes(USER, 'utf-8'))
                 data = my_socket.recv(1024)
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' +
-                            ' '.join(USER.split()))
+                            ' '.join(USER.split()) + '\r\n')
                 Logging.log('Received from' + PROXY + ':' + PROXYPORT +
-                            ': ' + str(data)) #data.decode(?)
+                            ': ' + str(data) + '\r\n') #data.decode(?)
                 print('Received: ', data.decode('utf-8'))
                 if '401' in data.decode('utf-8'):
                     nonce = data.decode('utf-8').split('=')[-1]
@@ -100,9 +100,9 @@ if __name__ == '__main__':
                     my_socket.send(bytes(NEW_USER, 'utf-8'))
                     data = my_socket.recv(1024)
                     Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
-                                ': ' + ' '.join(NEW_USER.split()))
+                                ': ' + ' '.join(NEW_USER.split()) + '\r\n')
                     Logging.log('Received from' + PROXY + ':' + PROXYPORT +
-                                ': ' + str(data)) #data.decode(?)
+                                ': ' + str(data) + '\r\n') #data.decode(?)
                     print('Received: ', data.decode('utf-8'))
 
             if METHOD == 'INVITE':
@@ -113,21 +113,23 @@ if __name__ == '__main__':
                         'RTP \r\n')
                 print(USER)
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' +
-                            ' '.join(USER.split()))
+                            ' '.join(USER.split()) + '\r\n')
                 my_socket.send(bytes(USER, 'utf-8'))
                 data = my_socket.recv(1024)
                 Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': '
-                            + str(data)) #data.decode(?)
+                            + str(data) + '\r\n') #data.decode(?)
                 print(data.decode('utf-8'))
                 if '200' in data.decode('utf-8'):
                     my_socket.send(bytes('ACK sip:' + USERNAME +
                                          ' SIP/2.0\r\n\r\n', 'utf-8'))
                     Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
-                                'ACK sip:' + USERNAME + ' SIP/2.0\r\n\r\n')
-                    aEjecutar = "./mp3rtp -i" + SERVER + " -p " + PORT + " < " + AUDIOFILE
+                                'ACK sip:' + USERNAME + ' SIP/2.0\r\n')
+                    '''aEjecutar = "./mp3rtp -i" + SERVER + " -p " + PORT + " < "\
+                                + AUDIOFILE
                     print('SONG: ', aEjecutar)
                     os.system(aEjecutar)
-                    Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' + aEjecutar)
+                    Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': '
+                                + aEjecutar + '\r\n')'''
 
             if METHOD == 'BYE':
                 print('FINISHING CONNECTION.')
@@ -136,17 +138,17 @@ if __name__ == '__main__':
                 print(USER)
                 my_socket.send(bytes(USER, 'utf-8'))
                 data = my_socket.recv(1024)
-                Logging.log('Finishing connection.')
+                Logging.log('Finishing connection. \r\n')
                 # (?) Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': ' + str(data))  #data.decode(?)
                 print(data.decode('utf-8'))
 
             if METHOD != ('REGISTER' or 'INVITE' or 'BYE'):
                 print('Wrong method, try REGISTER, INVITE or BYE')
-                Logging.log('405 ERROR: METHOD NOT ALLOWED.')
+                Logging.log('405 ERROR: METHOD NOT ALLOWED. \r\n')
 
     except ConnectionRefusedError:
         print("Connection Refused: Server not found")
-        Logging.log('400 ERROR: CONNECTION REFUSED.', LOGFILE)
+        Logging.log('400 ERROR: CONNECTION REFUSED. \r\n')
     except (IndexError or ValueError):
         print("Usage: python3 uaclient.py config method option")
-        Logging.log('400 ERROR: BAD REQUEST.')
+        Logging.log('400 ERROR: BAD REQUEST. \r\n')
