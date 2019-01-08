@@ -75,4 +75,3 @@ if __name__ == '__main__':
         my_socket.connect((IP, int(PORT)))
         my_socket.send(bytes(USER, 'utf-8'))
         data = my_socket.recv(1024)
-
