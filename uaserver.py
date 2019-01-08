@@ -26,30 +26,36 @@ class SIPHandler(socketserver.DatagramRequestHandler):
                 sip_connection = ('SIP/2.0 100 TRYING...\r\n\r\n' +
                                   'SIP/2.0 100 RINGING...\r\n\r\n' +
                                   'SIP/2.0 200 OK...\r\n\r\n')
-                msj_sdp = ('SIP/2.0 \r\n Content-Type:application/sdp \r\n\r\n v=0 \r\n o='
-                           + USERNAME + SERVER + '\r\n s=misesion \r\n t=0 \r\n m=audio '
-                           + AUDIOPORT + 'RTP \r\n')
-                self.wfile.write(bytes(sip_connection) + bytes(msj_sdp))
-                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' + sip_connection + msj_sdp)
+                msdp = ('SIP/2.0 \r\n Content-Type:application/sdp \r\n\r\n' +
+                        'v=0 \r\n o=' + USERNAME + SERVER + '\r\n s=misesion' +
+                        '\r\n t=0 \r\n m=audio ' + AUDIOPORT + 'RTP \r\n')
+                self.wfile.write(bytes(sip_connection) + bytes(msdp))
+                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' +
+                            sip_connection + msdp)
                 break
             if METHOD == 'ACK':
-                aEjecutar = "./mp3rtp -i" + SERVER + " -p " + PORT + " < " + AUDIOFILE
+                aEjecutar = "./mp3rtp -i" + SERVER + " -p " + PORT + " < " +\
+                            AUDIOFILE
                 print('SONG: ', aEjecutar)
                 os.system(aEjecutar)
-                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' + aEjecutar)
+                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': '
+                            + aEjecutar)
                 break
             if METHOD == 'BYE':
                 self.wfile.write(b"SIP/2.0 200 OK FINISHING CONNECTION")
                 print('FINISHING CONNECTION WITH THE CLIENT')
-                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': FINISHING CONNECTION')
+                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
+                            ': FINISHING CONNECTION')
                 break
             if METHOD != ('INVITE', 'ACK', 'BYE'):
                 self.wfile.write(b"SIP/2.0 405 METHOD NOT ALLOWED\r\n\r\n")
-                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': 405 METHOD NOT ALLOWED')
+                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
+                            ': 405 METHOD NOT ALLOWED')
                 break
             else:
                 self.wfile.write(b"SIP/2.0 400 BAD REQUEST\r\n\r\n")
-                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': 400 BAD REQUEST')
+                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
+                            ': 400 BAD REQUEST')
                 break
 
 
@@ -73,7 +79,6 @@ if __name__ == '__main__':
         PROXYPORT = opt['regproxy puerto']
         LOGFILE = opt['log path']
         AUDIOFILE = opt['audio path']
-
 
     except (IndexError or ValueError):
         print("Usage: python3 uaserver.py CONFIG")
