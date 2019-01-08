@@ -16,7 +16,7 @@ import hashlib
         json.dump(self.dicxml, log, indent=3)'''
 
 
-class Logging():
+class Logging:
     def log(operacion):
         time_actual = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(time.time()))
         logfile = open(opt['log path'], 'w')

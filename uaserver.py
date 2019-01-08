@@ -8,7 +8,6 @@ from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 from uaclient import DocumentXML
 from uaclient import Logging
-
 import os
 
 
@@ -31,6 +30,7 @@ class SIPHandler(socketserver.DatagramRequestHandler):
                 self.wfile.write(b"SIP/2.0 100 TRYING...\r\n\r\n" +
                                  b"SIP/2.0 100 RINGING...\r\n\r\n" +
                                  b"SIP/2.0 200 OK...\r\n\r\n" + bytes(msj_sdp))
+                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ')
                 break
             if METHOD == 'ACK':
                 song = 'mp32rtp -i' + SERVER + ' -p ' + PORT +' < ' + AUDIOFILE
@@ -55,23 +55,23 @@ if __name__ == '__main__':
     Handler = DocumentXML()
     parser.setContentHandler(Handler)
     parser.parse(open(sys.argv[1]))
-    data = Handler.get_tags()
-    print(data)
+    opt = Handler.get_tags()
+    print(opt)
 
     try:
         CONFIG = sys.argv[1]  # Fichero XML.
         #METHOD = sys.argv[2]  # Método SIP.
         #OPTION = sys.argv[3]  # Parámetro opcional.
 
-        USERNAME = data['account username']
-        PASSWORD = data['account passwd']
-        SERVER = data['uaserver ip']
-        PORT = data['uaserver puerto']
-        AUDIOPORT = data['rtpaudio puerto']
-        PROXY = data['regproxy ip']
-        PROXYPORT = data['regproxy puerto']
-        LOGFILE = data['log path']
-        AUDIOFILE = data['audio path']
+        USERNAME = opt['account username']
+        PASSWORD = opt['account passwd']
+        SERVER = opt['uaserver ip']
+        PORT = opt['uaserver puerto']
+        AUDIOPORT = opt['rtpaudio puerto']
+        PROXY = opt['regproxy ip']
+        PROXYPORT = opt['regproxy puerto']
+        LOGFILE = opt['log path']
+        AUDIOFILE = opt['audio path']
 
         USER = ''
 
