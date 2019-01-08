@@ -32,9 +32,7 @@ class DocumentXML(ContentHandler):
                     'rtpaudio': ['puerto'],
                     'regproxy': ['ip', 'puerto'],
                     'log': ['path'],
-                    'audio': ['path'],
-                    'server': ['name', 'ip', 'port'],
-                    'database': ['path', 'password_path']}
+                    'audio': ['path']}
         self.dicopt = {}
 
     def startElement(self, tag, attrs):
