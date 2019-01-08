@@ -61,7 +61,11 @@ if __name__ == '__main__':
 
         USERNAME = opt['account_username']
         PASSWORD = opt['account_passwd']
-        SERVER = opt['uaserver_ip']
+        if opt['uaserver_ip'] == '':
+            opt['uaserver_ip'] = '127.0.0.1'
+            SERVER = opt['uaserver_ip']
+        else:
+            SERVER = opt['uaserver_ip']
         PORT = opt['uaserver_puerto']
         AUDIOPORT = opt['rtpaudio_puerto']
         PROXY = opt['regproxy_ip']
