@@ -42,7 +42,11 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                       indent=4)
 
     def deletinguser(self):
-
+        del_client = []
+        time_actual_str = time.strftime('%Y-%m-%d %H:%M:%S',
+                                        time.gmtime(int(time.time())))
+        '''for client in self.clients:
+                if'''
 
 if __name__ == '__main__':
 
@@ -54,7 +58,11 @@ if __name__ == '__main__':
     print(opt)
 
     SERVER = opt['server_name']
-    IP = opt['server_ip']
+    if opt['server_ip'] == '':
+        opt['server_ip'] = '127.0.0.1'
+        IP = opt['server_ip']
+    else:
+        IP = opt['server_ip']
     PORT = opt['server_port']
     DATABASE = opt['database_path']
     DATAPASS = opt['database_password_path']
@@ -64,7 +72,7 @@ if __name__ == '__main__':
 
     with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
         my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        my_socket.connect((PROXY, int(PROXYPORT)))
+        my_socket.connect((IP, int(PORT)))
         my_socket.send(bytes(USER, 'utf-8'))
         data = my_socket.recv(1024)
 
