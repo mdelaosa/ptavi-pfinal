@@ -161,7 +161,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                     USER2 = info[7].split('o=')[1].split(' ')[0]
                     print(USER2)
                     if USER2 in self.clientes:
-                        Logging.log('Sent to' + CLIENT + ':' + PORTCLIENT + ':' +
+                        Logging.log('Sent to' + self.clientes[USER1]['IP'] + ':' + self.clientes[USER1]['PORT'] + ':' +
                                     line + '\r\n')
                         recibo = self.abrirsocket(line, self.clientes[USER1]['IP'], self.clientes[USER1]['PORT'])
                         self.wfile.write(bytes(recibo + '\r\n', 'utf-8'))
