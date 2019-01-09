@@ -3,10 +3,10 @@
 <config>
 	<account username="maria@alumnos" passwd="1234"/>
 	<uaserver ip="127.0.0.1" puerto="5555"/>
-	<rtpaudio puerto="23321"/>
-	<regproxy ip="127.0.0.1" puerto="3333"/>
+	<rtpaudio puerto="6008"/>
+	<regproxy ip="127.0.0.1" puerto="3332"/>
 	<log path="logua1.txt"/>
-	<audio path="./cancion.mp3/"/>
+	<audio path="cancion.mp3"/>
 </config>
 
 
