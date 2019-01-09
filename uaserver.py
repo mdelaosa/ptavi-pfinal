@@ -24,22 +24,26 @@ class SIPHandler(socketserver.DatagramRequestHandler):
             print("THE CLIENT SENT: " + line.decode('utf-8'))
             if METHOD == 'INVITE':
                 sip_connection = ('SIP/2.0 100 TRYING...\r\n\r\n' +
-                                  'SIP/2.0 100 RINGING...\r\n\r\n' +
-                                  'SIP/2.0 200 OK...\r\n\r\n')
-                msdp = ('SIP/2.0 \r\n Content-Type:application/sdp \r\n\r\n' +
-                        'v=0 \r\n o=' + USERNAME + SERVER + '\r\n s=misesion' +
-                        '\r\n t=0 \r\n m=audio ' + AUDIOPORT + 'RTP \r\n')
+                                  'SIP/2.0 180 RINGING...\r\n\r\n' +
+                                  'SIP/2.0 200 OK...\r\n')
+                msdp = ('Content-Type:application/sdp \r\n\r\n' +
+                        'v=0 \r\n o=' + USERNAME + ' ' + SERVER + '\r\n s=misesion' +
+                        '\r\n t=0 \r\n m=audio ' + AUDIOPORT + ' RTP \r\n')
                 self.wfile.write(bytes(sip_connection) + bytes(msdp))
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' +
                             sip_connection + msdp)
                 break
             if METHOD == 'ACK':
+                '''#OTHERUSER = data.decode('utf-8').split('o=')[1].split(' ')[0]
+                    OTHERPORT = data.decode('utf-8').split('m=audio ')[1].split(' RTP')[0]
+                    aEjecutar = "./mp3rtp -i" + SERVER + " -p " + OTHERPORT + " < "\
+                                + AUDIOFILE #Guardar dirección del otro y mandarla aquí'''
                 aEjecutar = "./mp3rtp -i" + SERVER + " -p " + PORT + " < " +\
-                            AUDIOFILE
+                            AUDIOFILE #Guardar dirección del otro y mandarla aquí
                 print('SONG: ', aEjecutar)
                 os.system(aEjecutar)
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': '
-                            + aEjecutar)
+                            + aEjecutar) #Proxy no, la otra persona
                 break
             if METHOD == 'BYE':
                 self.wfile.write(b"SIP/2.0 200 OK FINISHING CONNECTION")
