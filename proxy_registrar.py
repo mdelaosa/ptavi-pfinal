@@ -154,7 +154,6 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                                                 'TIME': TIME,
                                                 'EXPIRES': (EXP + TIME)}
             elif METHOD == 'INVITE':
-                print('HOLA')
                 if USER1 in self.clientes:
                     USER2 = line.split('o=')[1].split(' ')[0]
                     print(USER2)
@@ -174,17 +173,14 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                     Logging.log('Sent to:' + CLIENT + ': 404 USER NOT FOUND.\r\n')
 
             elif METHOD == 'BYE':
-                #USER1 = info[1].split(':')[1].split
-                print(USER1)
                 C_PORT = info[1].split(':')[2].split('SIP')[0]
                 Logging.log('Sent to:' + CLIENT + ':' + C_PORT +
                             ': BYE. FINISHING CONNECTION.\r\n')
-                del self.clientes[USER1]
+                #del self.clientes[USER1]
 
             elif METHOD != ('REGISTER' or 'INVITE' or 'ACK' or 'BYE'):
-                self.wfile.write(b"pROXY: SIP/2.0 405 METHOD NOT ALLOWED\r\n\r\n")
-                Logging.log('Sent to ' + CLIENT + ':' + ''' ''' +
-                            ': 405 METHOD NOT ALLOWED')
+                self.wfile.write(b"SIP/2.0 405 METHOD NOT ALLOWED\r\n")
+                Logging.log('Sent to ' + CLIENT + ': 405 METHOD NOT ALLOWED')
                 break
 
         self.register2json()
