@@ -53,7 +53,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             json.dump(self.passwords, PASSWORDS, sort_keys=True,
                       indent=4)
 
-    def abrirsocket(self, MESSAGE):
+    def abrirsocket(MESSAGE):
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
             my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             my_socket.connect((IP, int(PORT)))
@@ -63,13 +63,13 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                         ' '.join(MESSAGE.split()) + '\r\n')
             Logging.log('Sent to ' + IP + ':' + PORT + ': ' +
                         ' '.join(data.split()) + '\r\n')
+            return data
 
     def handle(self):
         """Escribe dirección y puerto del cliente (de tupla client_address)."""
         self.json2register()
         self.register2json()
         self.passwords()
-        #self.abrirsocket()
 
         CLIENT = self.client_address[0]
         while 1:
@@ -77,7 +77,9 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             line = self.rfile.read().decode('utf-8')
             if not line:
                 break
-            METHOD = line.split(" ")[0]
+            info = line.split(" ")
+            METHOD = info[0]
+            USER1 = info[1].split(':')[1]
             # Si no hay más líneas salimos del bucle.
             if not line:
                 break
@@ -91,16 +93,14 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                 break
 
             if METHOD == 'REGISTER':
-                info = line.decode('utf-8').split(" ")
-                USER = info[1].split(':')[1]
-                EXP = int(info[-1])
                 C_PORT = info[1].split(':')[2]
+                EXP = int(info[-1])
                 TIME = int(time.time())
                 Logging.log('Received from' + CLIENT + ':' + C_PORT + ': '
                             + " ".join(info) + '\r\n')
 
-                if USER in self.passwords:
-                    if USER in self.clientes:
+                if USER1 in self.passwords:
+                    if USER1 in self.clientes:
                         if EXP == 0:
                             # Borrar un usuario.
                             del self.clientes[USER]
@@ -133,7 +133,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                                                    '\r\n', 'utf-8'))
                             Logging.log('Sent to' + CLIENT + ':' + C_PORT +
                                         ': SIP/2.0 200 OK. Registered.\r\n')
-                            self.clientes[USER] = {'IP': CLIENT, 'PORT': C_PORT,
+                            self.clientes[USER1] = {'IP': CLIENT, 'PORT': C_PORT,
                                                    'TIME': TIME,
                                                    'EXPIRES': (EXP + TIME)}
 
@@ -144,7 +144,18 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                                 ': 404 USER NOT FOUND.\r\n')
 
             if METHOD == 'INVITE':
-
+                USER2 = info.split('o=')[1].split(' ')[0]
+                if USER1 in self.clientes:
+                    if USER2 in self.clientes:
+                        Logging.log('Sent to' + IP + ':' + PORT + ':' +
+                                    info + '\r\n')
+                        recibo = self.abrirsocket(info)
+                        self.wfile.write(bytes(recibo + '\r\n', 'utf-8'))
+                else:
+                    self.wfile.write(bytes('404 USER NOT FOUND.\r\n', 'utf-8'))
+                    print('404 USER NOT FOUND.')
+                    Logging.log('Sent to:' + CLIENT + ':' + self.clientes[USER2]['PORT'] +
+                                ': 404 USER NOT FOUND.\r\n')
 
 
 
