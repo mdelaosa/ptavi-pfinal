@@ -133,7 +133,8 @@ if __name__ == '__main__':
                                          ' SIP/2.0\r\n\r\n', 'utf-8'))
                     Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
                                 'ACK sip:' + USERNAME + ' SIP/2.0\r\n')
-                    aEjecutar = "./mp3rtp -i " + PROXY + " -p " + PROXYPORT + " < "\
+                    print(data.decode('utf-8'))
+                    aEjecutar = "./mp32rtp -i " + PROXY + " -p " + PROXYPORT + " < "\
                                 + AUDIOFILE
                     print('SONG: ', aEjecutar)
                     os.system(aEjecutar)
