@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <config>
-	<account username=" " passwd=" "/>
-	<uaserver ip=" " puerto=" "/>
-	<rtpaudio puerto=" "/>
-	<regproxy ip=" " puerto=" "/>
+	<account username="nuevo@alumno" passwd="8595"/>
+	<uaserver ip="127.0.0.1" puerto="8593"/>
+	<rtpaudio puerto="6001"/>
+	<regproxy ip="127.0.0.1" puerto="3332"/>
 	<log path="logua2.txt"/>
 	<audio path="./cancion.mp3/"/>
 </config>
