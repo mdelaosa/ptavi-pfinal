@@ -9,6 +9,7 @@ from xml.sax import make_parser
 from uaclient import DocumentXML
 import os
 
+
 class Logging:
     """Creamos la clase del Log."""
 
@@ -18,6 +19,7 @@ class Logging:
         logfile = open(LOGFILE, 'a')
         logfile.write(time_actual + ' ' + str(operacion))
         logfile.close()
+
 
 class SIPHandler(socketserver.DatagramRequestHandler):
     """SIP server class."""
@@ -30,27 +32,31 @@ class SIPHandler(socketserver.DatagramRequestHandler):
             if not line:
                 break
             METHOD = line[0]
-            print("THE CLIENT SENT: " + ' '.join(line))
+            recv = ' '.join(line)
+            print("THE CLIENT SENT: " + recv)
             if METHOD == 'INVITE':
                 sip_connection = ('SIP/2.0 100 TRYING...\r\n\r\n' +
                                   'SIP/2.0 180 RINGING...\r\n\r\n' +
                                   'SIP/2.0 200 OK...\r\n')
                 msdp = ('Content-Type:application/sdp \r\n\r\n' +
-                        'v=0 \r\n o=' + USERNAME + ' ' + SERVER + '\r\n s=misesion' +
-                        '\r\n t=0 \r\n m=audio ' + AUDIOPORT + ' RTP \r\n')
+                        'v=0 \r\n o=' + USERNAME + ' ' + SERVER + '\r\n'
+                        's=misesion' + '\r\n t=0 \r\n m=audio ' +
+                        AUDIOPORT + ' RTP \r\n')
                 mensaje = (sip_connection + msdp)
                 print(mensaje)
-                self.wfile.write(bytes(mensaje,'utf-8'))
+                self.wfile.write(bytes(mensaje, 'utf-8'))
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' +
                             sip_connection + msdp)
                 break
             if METHOD == 'ACK':
-                aEjecutar = "./mp32rtp -i " + PROXY + " -p " + PROXYPORT + " < " +\
-                            AUDIOFILE #Guardar dirección del otro y mandarla aquí
+                CLIENT = recv.split('o=')[1].split(' ')[1].split('\r')[0]
+                AUDIOCLIENT = recv.split('m=')[1].split(' ')[1].split(' R')[0]
+                aEjecutar = "./mp32rtp -i " + CLIENT + " -p " +\
+                            AUDIOCLIENT + " < " + AUDIOFILE
                 print('SONG: ', aEjecutar)
                 os.system(aEjecutar)
-                Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': '
-                            + aEjecutar) #Proxy no, la otra persona
+                Logging.log('Sent to ' + CLIENT + ':' + AUDIOCLIENT + ': '
+                            + aEjecutar)
                 break
             if METHOD == 'BYE':
                 self.wfile.write(b"SIP/2.0 200 OK FINISHING CONNECTION")
@@ -59,7 +65,7 @@ class SIPHandler(socketserver.DatagramRequestHandler):
                             ': FINISHING CONNECTION')
                 break
             elif METHOD != ('INVITE', 'ACK', 'BYE'):
-                self.wfile.write(b"SENT: SIP/2.0 405 METHOD NOT ALLOWED\r\n\r\n")
+                self.wfile.write(b"SIP/2.0 405 METHOD NOT ALLOWED\r\n\r\n")
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
                             ': 405 METHOD NOT ALLOWED')
                 break
