@@ -117,7 +117,7 @@ if __name__ == '__main__':
             if METHOD == 'INVITE':
                 USER = (METHOD + 'sip:' + OPTION + ' SIP/2.0 \r\n' +
                         'Content-Type: application/sdp \r\n\r\n v=0' +
-                        '\r\n o=' + USERNAME + SERVER + '\r\n' +
+                        '\r\n o=' + USERNAME + ' ' + SERVER + '\r\n' +
                         's=misesion \r\n t=0 \r\n m=audio ' + AUDIOPORT +
                         'RTP \r\n')
                 print(USER)
@@ -133,12 +133,14 @@ if __name__ == '__main__':
                                          ' SIP/2.0\r\n\r\n', 'utf-8'))
                     Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
                                 'ACK sip:' + USERNAME + ' SIP/2.0\r\n')
-                    '''aEjecutar = "./mp3rtp -i" + SERVER + " -p " + PORT + " < "\
-                                + AUDIOFILE
+                    #OTHERUSER = data.decode('utf-8').split('o=')[1].split(' ')[0]
+                    OTHERPORT = data.decode('utf-8').split('m=audio ')[1].split(' RTP')[0]
+                    aEjecutar = "./mp3rtp -i" + '''SERVER +''' " -p " + OTHERPORT + " < "\
+                                + AUDIOFILE #Guardar dirección del otro y mandarla aquí
                     print('SONG: ', aEjecutar)
                     os.system(aEjecutar)
                     Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': '
-                                + aEjecutar + '\r\n')'''
+                                + aEjecutar + '\r\n') # Proxy no, la otra persona
 
             if METHOD == 'BYE':
                 print('FINISHING CONNECTION.')
