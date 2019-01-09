@@ -43,7 +43,6 @@ class DocumentXML(ContentHandler):
     def startElement(self, tag, attrs):
         """Función atributos."""
         if tag in self.dic.keys():
-            print(tag)
             for parameters in self.dic[tag]:
                 self.dicopt[tag + '_' + parameters] = attrs.get(parameters, '')
 
@@ -88,7 +87,7 @@ if __name__ == '__main__':
 
             if METHOD == 'REGISTER':
                 USER = (METHOD + ' sip:' + USERNAME + ':' + PORT +
-                        'SIP/2.0\r\n' + 'Expires:' + OPTION + '\r\n')
+                        ' SIP/2.0\r\n' + ' Expires:' + OPTION + ' \r\n')
                 print(USER)
                 my_socket.send(bytes(USER, 'utf-8'))
                 data = my_socket.recv(1024)
@@ -102,12 +101,13 @@ if __name__ == '__main__':
                     checking = hashlib.md5()
                     checking.update(bytes(PASSWORD, 'utf-8'))
                     checking.update(bytes(nonce, 'utf-8'))
-                    print('SIP/2.0 401 Unaunthorized')
-                    NEW_USER = (USER + 'Authorizatin: Digest response= ' +
-                                checking.hexdigest() + '\r\n')
+                    print('Hola: SIP/2.0 401 Unaunthorized')
+                    NEW_USER = (USER + ' Authorization: Digest response=' +
+                                checking.hexdigest())
                     print(data.decode('utf-8'))
-                    my_socket.send(bytes(NEW_USER, 'utf-8'))
+                    my_socket.send(bytes(NEW_USER + '\r\n', 'utf-8'))
                     data = my_socket.recv(1024)
+                    print(NEW_USER)
                     Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
                                 ': ' + ' '.join(NEW_USER.split()) + '\r\n')
                     Logging.log('Received from' + PROXY + ':' + PROXYPORT +
@@ -115,11 +115,11 @@ if __name__ == '__main__':
                     print('Received: ', data.decode('utf-8'))
 
             if METHOD == 'INVITE':
-                USER = (METHOD + 'sip:' + OPTION + ' SIP/2.0 \r\n' +
+                USER = (METHOD + ' sip:' + OPTION + ' SIP/2.0 \r\n' +
                         'Content-Type: application/sdp \r\n\r\n v=0' +
                         '\r\n o=' + USERNAME + ' ' + SERVER + '\r\n' +
                         's=misesion \r\n t=0 \r\n m=audio ' + AUDIOPORT +
-                        'RTP \r\n')
+                        ' RTP \r\n')
                 print(USER)
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' +
                             ' '.join(USER.split()) + '\r\n')
@@ -143,14 +143,14 @@ if __name__ == '__main__':
             if METHOD == 'BYE':
                 print('FINISHING CONNECTION.')
                 USER = (METHOD + 'sip:' + USERNAME + ':' + PROXYPORT +
-                        'SIP/2.0\r\n\r\n' + 'Expires:' + OPTION + '\r\n')
+                        'SIP/2.0\r\n\r\n')
                 print(USER)
                 my_socket.send(bytes(USER, 'utf-8'))
                 data = my_socket.recv(1024)
                 Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': ' + str(data))
                 Logging.log('Finishing connection. \r\n')
 
-            if METHOD != ('REGISTER' or 'INVITE' or 'BYE'):
+            elif METHOD != ('REGISTER' or 'INVITE' or 'BYE'):
                 print('Wrong method, try REGISTER, INVITE or BYE')
                 Logging.log('405 METHOD NOT ALLOWED. \r\n')
 
