@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
 """Proxy-Registrar práctica final María de la Osa."""
+import socketserver
 import socket
 import sys
 import time
@@ -53,15 +54,15 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             json.dump(self.passwords, PASSWORDS, sort_keys=True,
                       indent=4)
 
-    def abrirsocket(MESSAGE):
+    def abrirsocket(self, mensaje, IPS, PORTS):
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
             my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            my_socket.connect((IP, int(PORT)))
-            my_socket.send(bytes(MESSAGE, 'utf-8'))
+            my_socket.connect((IPS, int(PORTS)))
+            my_socket.send(bytes(mensaje, 'utf-8'))
             data = my_socket.recv(1024).decode('utf-8')
-            Logging.log('Sent to ' + IP + ':' + PORT + ': ' +
-                        ' '.join(MESSAGE.split()) + '\r\n')
-            Logging.log('Sent to ' + IP + ':' + PORT + ': ' +
+            Logging.log('Sent to: ' + IPS + ':' + PORTS + ': ' +
+                        ' '.join(mensaje.split()) + '\r\n')
+            Logging.log('Received from: ' + IPS + ':' + PORTS + ': ' +
                         ' '.join(data.split()) + '\r\n')
             return data
 
@@ -147,15 +148,23 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                 USER2 = info.split('o=')[1].split(' ')[0]
                 if USER1 in self.clientes:
                     if USER2 in self.clientes:
-                        Logging.log('Sent to' + IP + ':' + PORT + ':' +
+                        Logging.log('Sent to' + self.clientes[USER1]['IP'] + ':' + self.clientes[USER1]['PORT'] + ':' +
                                     info + '\r\n')
-                        recibo = self.abrirsocket(info)
+                        recibo = self.abrirsocket(info, self.clientes[USER1]['IP'], self.clientes[USER1]['PORT'])
                         self.wfile.write(bytes(recibo + '\r\n', 'utf-8'))
+                        if METHOD == 'ACK':
+                            Logging.log('Sent to' + self.clientes[USER1]['IP'] + ':' + self.clientes[USER1]['PORT'] + ':' +
+                                info + '\r\n')
+                            recibo = self.abrirsocket(info, self.clientes[USER1]['IP'], self.clientes[USER1]['PORT'])
+                            self.wfile.write(bytes(recibo + '\r\n', 'utf-8'))
                 else:
                     self.wfile.write(bytes('404 USER NOT FOUND.\r\n', 'utf-8'))
                     print('404 USER NOT FOUND.')
                     Logging.log('Sent to:' + CLIENT + ':' + self.clientes[USER2]['PORT'] +
                                 ': 404 USER NOT FOUND.\r\n')
+
+            if METHOD == 'BYE':
+                
 
 
 
