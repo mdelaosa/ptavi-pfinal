@@ -6,6 +6,7 @@ import sys
 import time
 import random
 import json
+import hashlib
 from xml.sax import make_parser
 from xml.sax.handler import ContentHandler
 from uaclient import Logging
@@ -38,16 +39,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                 self.clientes = json.load(jsonfile)
         except (FileNotFoundError, ValueError):
             self.clientes = {}
-        '''for usuario in self.clientes.keys():
-            time_actual = time.strftime('%Y%m%d%H%M%S', time.gmtime(time.time()))
-            time_exp = int(expires + time_actual)
-            IP = self.usuarios_registrados[usuario][0]
-            puerto = self.usuarios_registrados[usuario][1]
-            hora_actual = self.usuarios_registrados[usuario][2]
-            hora_exp = self.usuarios_registrados[usuario][3]
-            jsonfile.write(SERVER + '\t' + IP + '\t' + str(PORT)
-                        + '\t' + time_actual + '\t'
-                        + str(hora_exp) + '\r\n')'''
+
 
     def register2json(self):
         # Database.
@@ -61,15 +53,24 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             json.dump(self.passwords, PASSWORDS, sort_keys=True,
                       indent=4)
 
-    '''def deletinguser(self):
-        del_client = []
-        time_actual_str = time.strftime('%Y-%m-%d %H:%M:%S',
-                                        time.gmtime(int(time.time())))
-        for client in self.clients:
-                if'''
+    def abrirsocket(self, MESSAGE):
+        with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
+            my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            my_socket.connect((IP, int(PORT)))
+            my_socket.send(bytes(MESSAGE, 'utf-8'))
+            data = my_socket.recv(1024).decode('utf-8')
+            Logging.log('Sent to ' + IP + ':' + PORT + ': ' +
+                        ' '.join(MESSAGE.split()) + '\r\n')
+            Logging.log('Sent to ' + IP + ':' + PORT + ': ' +
+                        ' '.join(data.split()) + '\r\n')
 
     def handle(self):
         """Escribe dirección y puerto del cliente (de tupla client_address)."""
+        self.json2register()
+        self.register2json()
+        self.passwords()
+        #self.abrirsocket()
+
         CLIENT = self.client_address[0]
         while 1:
             # Leyendo línea a línea lo que nos envía el cliente.
@@ -82,19 +83,19 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                 break
 
             print("El cliente nos manda: \r\n" + line.decode('utf-8'))
-            data = line.decode('utf-8').split("\r\n")
 
-            if METHOD != ('INVITE', 'ACK', 'BYE'):
+            if METHOD != ('REGISTER', 'INVITE', 'ACK', 'BYE'):
                 self.wfile.write(b"SIP/2.0 405 METHOD NOT ALLOWED\r\n\r\n")
                 Logging.log('Sent to ' + CLIENT + ':' + ''' ''' +
                             ': 405 METHOD NOT ALLOWED')
                 break
 
-            elif METHOD == 'REGISTER':
+            if METHOD == 'REGISTER':
                 info = line.decode('utf-8').split(" ")
                 USER = info[1].split(':')[1]
                 EXP = int(info[-1])
                 C_PORT = info[1].split(':')[2]
+                TIME = int(time.time())
                 Logging.log('Received from' + CLIENT + ':' + C_PORT + ': '
                             + " ".join(info) + '\r\n')
 
@@ -123,12 +124,28 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                                      'Authenticate: Digest nonce=' +
                                      random.randint(0, 999999999999))
                         self.wfile.write(bytes(errormens, 'utf-8'))
+                        nonce = data.split('=')[-1]
+                        checking = hashlib.md5()
+                        checking.update(bytes(self.password[USER]['password'], 'utf-8'))
+                        checking.update(bytes(nonce, 'utf-8'))
+                        if nonce == checking.hexdigest():
+                            self.wfile.write(bytes('SIP/2.0 200 OK. Registered.' +
+                                                   '\r\n', 'utf-8'))
+                            Logging.log('Sent to' + CLIENT + ':' + C_PORT +
+                                        ': SIP/2.0 200 OK. Registered.\r\n')
+                            self.clientes[USER] = {'IP': CLIENT, 'PORT': C_PORT,
+                                                   'TIME': TIME,
+                                                   'EXPIRES': (EXP + TIME)}
 
                 else:
                     self.wfile.write(bytes('404 USER NOT FOUND.\r\n', 'utf-8'))
                     print('404 USER NOT FOUND.')
                     Logging.log('Sent to:' + CLIENT + ':' + C_PORT +
                                 ': 404 USER NOT FOUND.\r\n')
+
+            if METHOD == 'INVITE':
+
+
 
 
 if __name__ == '__main__':
