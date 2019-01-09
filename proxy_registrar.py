@@ -85,11 +85,13 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
         self.passwords()
 
         CLIENT = self.client_address[0]
+        PORTCLIENT = self.client_address[1]
         while 1:
             # Leyendo línea a línea lo que nos envía el cliente.
             line = self.rfile.read().decode('utf-8')
             if not line:
                 break
+            #information = line.decode('utf-8')
             info = line.split(' ')
             METHOD = info[0]
             USER1 = info[1].split(':')[1]
@@ -141,7 +143,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                         Logging.log('Sent to:' + CLIENT + ':' + C_PORT +
                                     ': 400 BAD REQUEST.\r\n')
 
-                    nonce_recv = line.split('=')[1].split('\r')[0]
+                    nonce_recv = info.split('=')[1].split('\r')[0]
                     checking = hashlib.md5()
                     checking.update(bytes(self.passwds[USER1]['passwd'], 'utf-8'))
                     checking.update(bytes(self.nonce[USER1], 'utf-8'))
@@ -154,11 +156,12 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                                                 'TIME': TIME,
                                                 'EXPIRES': (EXP + TIME)}
             elif METHOD == 'INVITE':
+                print(line)
                 if USER1 in self.clientes:
-                    USER2 = line.split('o=')[1].split(' ')[0]
+                    USER2 = info[7].split('o=')[1].split(' ')[0]
                     print(USER2)
                     if USER2 in self.clientes:
-                        Logging.log('Sent to' + self.clientes[USER1]['IP'] + ':' + self.clientes[USER1]['PORT'] + ':' +
+                        Logging.log('Sent to' + CLIENT + ':' + PORTCLIENT + ':' +
                                     line + '\r\n')
                         recibo = self.abrirsocket(line, self.clientes[USER1]['IP'], self.clientes[USER1]['PORT'])
                         self.wfile.write(bytes(recibo + '\r\n', 'utf-8'))
