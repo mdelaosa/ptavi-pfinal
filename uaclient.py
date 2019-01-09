@@ -94,7 +94,7 @@ if __name__ == '__main__':
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' +
                             ' '.join(USER.split()) + '\r\n')
                 Logging.log('Received from' + PROXY + ':' + PROXYPORT +
-                            ': ' + str(data) + '\r\n') #data.decode(?)
+                            ': ' + str(data) + '\r\n')
                 print('Received: ', data.decode('utf-8'))
                 if '401' in data.decode('utf-8'):
                     nonce = data.decode('utf-8').split('=')[-1]
@@ -124,21 +124,23 @@ if __name__ == '__main__':
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' +
                             ' '.join(USER.split()) + '\r\n')
                 my_socket.send(bytes(USER, 'utf-8'))
-                data = my_socket.recv(1024)
+                data = my_socket.recv(1024).decode('utf-8')
                 Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': '
                             + str(data) + '\r\n')
                 print(data.decode('utf-8'))
+                CLIENT = data.split('o=')[1].split(' ')[1].split('\r')
+                AUDIOCLIENT = data.split('m=')[1].split(' ')[1].split(' R')[0]
                 if '200' in data.decode('utf-8'):
                     my_socket.send(bytes('ACK sip:' + USERNAME +
                                          ' SIP/2.0\r\n\r\n', 'utf-8'))
                     Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
-                                'ACK sip:' + USERNAME + ' SIP/2.0\r\n')
+                                ' ACK sip:' + USERNAME + ' SIP/2.0\r\n')
                     print(data.decode('utf-8'))
-                    aEjecutar = "./mp32rtp -i " + PROXY + " -p " + PROXYPORT + " < "\
-                                + AUDIOFILE
+                    aEjecutar = "./mp32rtp -i " + CLIENT + " -p " +\
+                                AUDIOCLIENT + " < " + AUDIOFILE
                     print('SONG: ', aEjecutar)
                     os.system(aEjecutar)
-                    Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': '
+                    Logging.log('Sent to ' + CLIENT + ':' + AUDIOCLIENT + ': '
                                 + aEjecutar + '\r\n')
 
             if METHOD == 'BYE':
@@ -148,7 +150,8 @@ if __name__ == '__main__':
                 print(USER)
                 my_socket.send(bytes(USER, 'utf-8'))
                 data = my_socket.recv(1024)
-                Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': ' + str(data))
+                Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': ' +
+                            str(data))
                 Logging.log('Finishing connection. \r\n')
 
             elif METHOD != ('REGISTER' or 'INVITE' or 'BYE'):
