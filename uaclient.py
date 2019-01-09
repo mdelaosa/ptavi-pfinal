@@ -63,7 +63,7 @@ if __name__ == '__main__':
     try:
         CONFIG = sys.argv[1]  # Fichero XML.
         METHOD = sys.argv[2]  # Método SIP.
-        OPTION = sys.argv[3]  # Parámetro opcional.
+        # También se puede añadir un parámetro opcional.
 
         USERNAME = opt['account_username']
         PASSWORD = opt['account_passwd']
@@ -87,7 +87,7 @@ if __name__ == '__main__':
 
             if METHOD == 'REGISTER':
                 USER = (METHOD + ' sip:' + USERNAME + ':' + PORT +
-                        ' SIP/2.0\r\n' + ' Expires:' + OPTION + ' \r\n')
+                        ' SIP/2.0\r\n' + ' Expires:' + sys.argv[3] + ' \r\n')
                 print(USER)
                 my_socket.send(bytes(USER, 'utf-8'))
                 data = my_socket.recv(1024)
@@ -115,7 +115,7 @@ if __name__ == '__main__':
                     print('Received: ', data.decode('utf-8'))
 
             if METHOD == 'INVITE':
-                USER = (METHOD + ' sip:' + OPTION + ' SIP/2.0 \r\n' +
+                USER = (METHOD + ' sip:' + sys.argv[3] + ' SIP/2.0 \r\n' +
                         'Content-Type: application/sdp \r\n\r\n v=0' +
                         '\r\n o=' + USERNAME + ' ' + SERVER + '\r\n' +
                         's=misesion \r\n t=0 \r\n m=audio ' + AUDIOPORT +
@@ -133,7 +133,7 @@ if __name__ == '__main__':
                                          ' SIP/2.0\r\n\r\n', 'utf-8'))
                     Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
                                 'ACK sip:' + USERNAME + ' SIP/2.0\r\n')
-                    aEjecutar = "./mp3rtp -i" + PROXY + " -p " + PROXYPORT + " < "\
+                    aEjecutar = "./mp3rtp -i " + PROXY + " -p " + PROXYPORT + " < "\
                                 + AUDIOFILE
                     print('SONG: ', aEjecutar)
                     os.system(aEjecutar)
@@ -142,7 +142,7 @@ if __name__ == '__main__':
 
             if METHOD == 'BYE':
                 print('FINISHING CONNECTION.')
-                USER = (METHOD + 'sip:' + USERNAME + ':' + PROXYPORT +
+                USER = (METHOD + ' sip:' + USERNAME + ':' + PROXYPORT +
                         'SIP/2.0\r\n\r\n')
                 print(USER)
                 my_socket.send(bytes(USER, 'utf-8'))
