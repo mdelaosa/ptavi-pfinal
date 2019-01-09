@@ -39,12 +39,13 @@ class SIPHandler(socketserver.DatagramRequestHandler):
                         'v=0 \r\n o=' + USERNAME + ' ' + SERVER + '\r\n s=misesion' +
                         '\r\n t=0 \r\n m=audio ' + AUDIOPORT + ' RTP \r\n')
                 mensaje = (sip_connection + msdp)
+                print(mensaje)
                 self.wfile.write(bytes(mensaje,'utf-8'))
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' +
                             sip_connection + msdp)
                 break
             if METHOD == 'ACK':
-                aEjecutar = "./mp3rtp -i " + PROXY + " -p " + PROXYPORT + " < " +\
+                aEjecutar = "./mp32rtp -i " + PROXY + " -p " + PROXYPORT + " < " +\
                             AUDIOFILE #Guardar dirección del otro y mandarla aquí
                 print('SONG: ', aEjecutar)
                 os.system(aEjecutar)
