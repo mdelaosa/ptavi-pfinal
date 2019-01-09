@@ -155,11 +155,11 @@ if __name__ == '__main__':
 
             if METHOD != ('REGISTER' or 'INVITE' or 'BYE'):
                 print('Wrong method, try REGISTER, INVITE or BYE')
-                Logging.log('405 ERROR: METHOD NOT ALLOWED. \r\n')
+                Logging.log('405 METHOD NOT ALLOWED. \r\n')
 
     except ConnectionRefusedError:
-        print("Connection Refused: Server not found")
-        Logging.log('400 ERROR: CONNECTION REFUSED. \r\n')
+        print("400 Connection Refused: Server not found")
+        Logging.log('400 CONNECTION REFUSED. \r\n')
     except (IndexError or ValueError):
         print("Usage: python3 uaclient.py config method option")
-        Logging.log('400 ERROR: BAD REQUEST. \r\n')
+        Logging.log('400 BAD REQUEST. \r\n')
