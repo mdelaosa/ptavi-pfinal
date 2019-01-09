@@ -20,7 +20,7 @@ class SIPHandler(socketserver.DatagramRequestHandler):
             line = self.rfile.read().decode('utf-8')
             if not line:
                 break
-            METHOD = line.split(" ")[0]
+            METHOD = line[0]
             print("THE CLIENT SENT: " + line.decode('utf-8'))
             if METHOD == 'INVITE':
                 sip_connection = ('SIP/2.0 100 TRYING...\r\n\r\n' +
@@ -34,11 +34,7 @@ class SIPHandler(socketserver.DatagramRequestHandler):
                             sip_connection + msdp)
                 break
             if METHOD == 'ACK':
-                '''#OTHERUSER = data.decode('utf-8').split('o=')[1].split(' ')[0]
-                    OTHERPORT = data.decode('utf-8').split('m=audio ')[1].split(' RTP')[0]
-                    aEjecutar = "./mp3rtp -i" + SERVER + " -p " + OTHERPORT + " < "\
-                                + AUDIOFILE #Guardar dirección del otro y mandarla aquí'''
-                aEjecutar = "./mp3rtp -i" + SERVER + " -p " + PORT + " < " +\
+                aEjecutar = "./mp3rtp -i" + PROXY + " -p " + PROXYPORT + " < " +\
                             AUDIOFILE #Guardar dirección del otro y mandarla aquí
                 print('SONG: ', aEjecutar)
                 os.system(aEjecutar)
@@ -72,17 +68,24 @@ if __name__ == '__main__':
     opt = Handler.get_tags()
     print(opt)
 
-    try:
-        CONFIG = sys.argv[1]  # Fichero XML.
-        USERNAME = opt['account username']
-        PASSWORD = opt['account passwd']
-        SERVER = opt['uaserver ip']
-        PORT = opt['uaserver puerto']
-        AUDIOPORT = opt['rtpaudio puerto']
-        PROXY = opt['regproxy ip']
-        PROXYPORT = opt['regproxy puerto']
-        LOGFILE = opt['log path']
-        AUDIOFILE = opt['audio path']
+    CONFIG = sys.argv[1]  # Fichero XML.
+    USERNAME = opt['account_username']
+    PASSWORD = opt['account_passwd']
+    SERVER = opt['uaserver_ip']
+    PORT = opt['uaserver_puerto']
+    AUDIOPORT = opt['rtpaudio_puerto']
+    PROXY = opt['regproxy_ip']
+    PROXYPORT = opt['regproxy_puerto']
+    LOGFILE = opt['log_path']
+    AUDIOFILE = opt['audio_path']
 
-    except (IndexError or ValueError):
-        print("Usage: python3 uaserver.py CONFIG")
+    serv = socketserver.UDPServer((SERVER, int(PORT)), SIPHandler)
+    print("STARTING SERVER...")
+    try:
+        """Creamos el servidor"""
+        serv.serve_forever()
+    except KeyboardInterrupt:
+        print("Finalizado servidor")
+
+    '''if (IndexError or ValueError):
+        print("Usage: python3 uaserver.py CONFIG")'''
