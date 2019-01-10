@@ -1,1 +1,4 @@
 Avanzadas:
+-He creado el archivo json para que aunque acabe la conexión con un BYE, se pueda recuperar, ya que del diccionario de clientes, solo se borrarán en el caso de introducir 'REGISTER 0'.
+Esto se había visto ya en una práctica anterior.
+-He implementado parte de los errores. 
