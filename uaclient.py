@@ -133,8 +133,8 @@ if __name__ == '__main__':
                 AUDIOCLIENT = data.split('audio ')[1].split(' ')[0]
                 print(AUDIOCLIENT)
                 if '200' in data:
-                    my_socket.send(bytes('ACK sip:' + USERNAME + ' ' + SERVER +
-                                         ' SIP/2.0\r\n\r\n', 'utf-8'))
+                    my_socket.send(bytes('ACK sip:' + sys.argv[3] +
+                                         ' SIP/2.0\r\n', 'utf-8'))
                     Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
                                 ' ACK sip:' + USERNAME + ' SIP/2.0\r\n')
                     print(data)
