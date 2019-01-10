@@ -23,7 +23,7 @@ class Logging:
 
 class SIPHandler(socketserver.DatagramRequestHandler):
     """SIP server class."""
-
+    USUARIO = []
     def handle(self):
         """Escribe dirección y puerto del cliente (de tupla client_address)."""
         while 1:
@@ -49,14 +49,18 @@ class SIPHandler(socketserver.DatagramRequestHandler):
                             sip_connection + msdp)
                 CLIENT = recv.split('o=')[1].split(' ')[1].split('\r')[0]
                 AUDIOCLIENT = recv.split('m=')[1].split(' ')[1].split(' R')[0]
+                self.USUARIO.append(CLIENT)
+                self.USUARIO.append(AUDIOCLIENT)
+
             if 'ACK' in line:
-                aEjecutar = "./mp32rtp -i " + CLIENT + " -p " +\
-                            AUDIOCLIENT + " < " + AUDIOFILE
+                print(self.USUARIO)
+                aEjecutar = "./mp32rtp -i " + self.USUARIO[0] + " -p " +\
+                            self.USUARIO[1] + " < " + AUDIOFILE
                 print('SONG: ', aEjecutar)
                 os.system(aEjecutar)
-                Logging.log('Sent to ' + CLIENT + ':' + AUDIOCLIENT + ': '
+                Logging.log('Sent to ' + self.USUARIO[0] + ':' + self.USUARIO[1] + ': '
                             + aEjecutar)
-            break
+                break
 
             if METHOD == 'BYE':
                 self.wfile.write(b"SIP/2.0 200 OK FINISHING CONNECTION")
@@ -64,6 +68,7 @@ class SIPHandler(socketserver.DatagramRequestHandler):
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
                             ': FINISHING CONNECTION')
                 break
+
             if METHOD not in ['REGISTER', 'INVITE', 'ACK', 'BYE']:
                 self.wfile.write(b"SIP/2.0 405 METHOD NOT ALLOWED\r\n\r\n")
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
