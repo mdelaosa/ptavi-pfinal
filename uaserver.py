@@ -23,7 +23,9 @@ class Logging:
 
 class SIPHandler(socketserver.DatagramRequestHandler):
     """SIP server class."""
+
     USUARIO = []
+
     def handle(self):
         """Escribe dirección y puerto del cliente (de tupla client_address)."""
         while 1:
@@ -58,8 +60,8 @@ class SIPHandler(socketserver.DatagramRequestHandler):
                             self.USUARIO[1] + " < " + AUDIOFILE
                 print('SONG: ', aEjecutar)
                 os.system(aEjecutar)
-                Logging.log('Sent to ' + self.USUARIO[0] + ':' + self.USUARIO[1] + ': '
-                            + aEjecutar)
+                Logging.log('Sent to ' + self.USUARIO[0] + ':' +
+                            self.USUARIO[1] + ': ' + aEjecutar)
                 break
 
             if METHOD == 'BYE':
