@@ -34,6 +34,8 @@ class SIPHandler(socketserver.DatagramRequestHandler):
             METHOD = line[0]
             recv = ' '.join(line)
             print("THE CLIENT SENT: " + recv)
+            CLIENT = recv.split('o=')[1].split(' ')[1].split('\r')[0]
+            AUDIOCLIENT = recv.split('m=')[1].split(' ')[1].split(' R')[0]
             if METHOD == 'INVITE':
                 sip_connection = ('SIP/2.0 100 TRYING...\r\n\r\n' +
                                   'SIP/2.0 180 RINGING...\r\n\r\n' +
@@ -47,29 +49,29 @@ class SIPHandler(socketserver.DatagramRequestHandler):
                 self.wfile.write(bytes(mensaje, 'utf-8'))
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' +
                             sip_connection + msdp)
+
+                if 'ACK' in line:
+                    print('LINE: ', line)
+                    aEjecutar = "./mp32rtp -i " + CLIENT + " -p " +\
+                                AUDIOCLIENT + " < " + AUDIOFILE
+                    print('SONG: ', aEjecutar)
+                    os.system(aEjecutar)
+                    Logging.log('Sent to ' + CLIENT + ':' + AUDIOCLIENT + ': '
+                                + aEjecutar)
                 break
-            if METHOD == 'ACK':
-                CLIENT = recv.split('o=')[1].split(' ')[1].split('\r')[0]
-                AUDIOCLIENT = recv.split('m=')[1].split(' ')[1].split(' R')[0]
-                aEjecutar = "./mp32rtp -i " + CLIENT + " -p " +\
-                            AUDIOCLIENT + " < " + AUDIOFILE
-                print('SONG: ', aEjecutar)
-                os.system(aEjecutar)
-                Logging.log('Sent to ' + CLIENT + ':' + AUDIOCLIENT + ': '
-                            + aEjecutar)
-                break
+
             if METHOD == 'BYE':
                 self.wfile.write(b"SIP/2.0 200 OK FINISHING CONNECTION")
                 print('FINISHING CONNECTION WITH THE CLIENT')
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
                             ': FINISHING CONNECTION')
                 break
-            elif METHOD != ('INVITE', 'ACK', 'BYE'):
+            if METHOD not in ['REGISTER', 'INVITE', 'ACK', 'BYE']:
                 self.wfile.write(b"SIP/2.0 405 METHOD NOT ALLOWED\r\n\r\n")
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
                             ': 405 METHOD NOT ALLOWED')
                 break
-            else:
+            if ConnectionRefusedError:
                 self.wfile.write(b"SIP/2.0 400 BAD REQUEST\r\n\r\n")
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
                             ': 400 BAD REQUEST')
@@ -104,5 +106,5 @@ if __name__ == '__main__':
     except KeyboardInterrupt:
         print("Finalizado servidor")
 
-    '''if (IndexError or ValueError):
-        print("Usage: python3 uaserver.py CONFIG")'''
+    if (IndexError or ValueError):
+        print("Usage: python3 uaserver.py CONFIG")
