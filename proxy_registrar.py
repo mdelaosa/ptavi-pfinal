@@ -122,6 +122,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                                                        'utf-8'))
                                 Logging.log('Sent: ' + CLIENT + ':' + C_PORT +
                                             ': SIP/2.0 200 OK. Deleting.\r\n')
+                                print('Deleting user.')
                             if EXP < 0:
                                 self.wfile.write(bytes('400 BAD REQUEST.\r\n',
                                                        'utf-8'))
@@ -141,14 +142,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                             self.wfile.write(bytes(error, 'utf-8'))
 
                 if len(info) == 8:
-                    if EXP < 0:
-                        self.wfile.write(bytes('400 BAD REQUEST.\r\n',
-                                               'utf-8'))
-                        print('400 BAD REQUEST.')
-                        Logging.log('Sent to:' + CLIENT + ':' + C_PORT +
-                                    ': 400 BAD REQUEST.\r\n')
-
-                    nonce_recv = info.split('=')[1].split('\r')[0]
+                    nonce_recv = info[7].split('=')[1].split('\r')[0]
                     checking = hashlib.md5()
                     checking.update(bytes(self.passwds[U1]['passwd'], 'utf-8'))
                     checking.update(bytes(self.nonce[U1], 'utf-8'))
@@ -160,6 +154,13 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                         self.clientes[U1] = {'IP': CLIENT, 'PORT': C_PORT,
                                              'TIME': TIME,
                                              'EXPIRES': (EXP + TIME)}
+                    if nonce_recv != checking.hexdigest() or EXP < 0:
+                        self.wfile.write(bytes('400 BAD REQUEST.\r\n',
+                                               'utf-8'))
+                        print('400 BAD REQUEST.')
+                        Logging.log('Sent to:' + CLIENT + ':' + C_PORT +
+                                    ': 400 BAD REQUEST.\r\n')
+
             elif METHOD == 'INVITE':
                 print(line)
                 if U1 in self.clientes:
