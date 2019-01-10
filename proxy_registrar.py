@@ -160,12 +160,11 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                         print('400 BAD REQUEST.')
                         Logging.log('Sent to:' + CLIENT + ':' + C_PORT +
                                     ': 400 BAD REQUEST.\r\n')
+                break
 
-            elif METHOD == 'INVITE':
-                print(line)
+            if METHOD == 'INVITE':
                 if U1 in self.clientes:
                     U2 = info[7].split('o=')[1].split(' ')[0]
-                    print(U2)
                     if U2 in self.clientes:
                         Logging.log('Sent to' + self.clientes[U1]['IP'] + ':' +
                                     self.clientes[U1]['PORT'] + ':' +
@@ -173,26 +172,34 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                         rc = self.abrirsocket(line, self.clientes[U1]['IP'],
                                               self.clientes[U1]['PORT'])
                         self.wfile.write(bytes(rc + '\r\n', 'utf-8'))
-                        if METHOD == 'ACK':
-                            Logging.log('Sent to' + self.clientes[U1]['IP'] +
-                                        ':' + self.clientes[U1]['PORT'] + ':' +
-                                        line + '\r\n')
-                            rc = self.abrirsocket(line,
-                                                  self.clientes[U1]['IP'],
-                                                  self.clientes[U1]['PORT'])
-                            self.wfile.write(bytes(rc + '\r\n', 'utf-8'))
+                        print('HOLA')
                 else:
                     self.wfile.write(bytes('404 USER NOT FOUND.\r\n', 'utf-8'))
                     print('404 USER NOT FOUND.')
                     Logging.log('Sent to:' + CLIENT +
                                 ': 404 USER NOT FOUND.\r\n')
+                break
 
-            elif METHOD == 'BYE':
+            if METHOD == 'ACK':
+                Logging.log('Sent to' + self.clientes[U1]['IP'] +
+                            ':' + self.clientes[U1]['PORT'] + ':' +
+                            line + '\r\n')
+                rc = self.abrirsocket(line,
+                                      self.clientes[U1]['IP'],
+                                      self.clientes[U1]['PORT'])
+
+                self.wfile.write(bytes(rc + '\r\n', 'utf-8'))
+                break
+
+            if METHOD == 'BYE':
                 C_PORT = info[1].split(':')[2].split('SIP')[0]
+                self.wfile.write(bytes('SIP/2.0 200 OK. BYE.\r\n', 'utf-8'))
+                print('Finishing connection with ' + CLIENT, C_PORT)
                 Logging.log('Sent to:' + CLIENT + ':' + C_PORT +
                             ': BYE. FINISHING CONNECTION.\r\n')
+                break
 
-            elif METHOD != ('REGISTER' or 'INVITE' or 'ACK' or 'BYE'):
+            if METHOD not in ['REGISTER', 'INVITE', 'ACK', 'BYE']:
                 self.wfile.write(b"SIP/2.0 405 METHOD NOT ALLOWED\r\n")
                 Logging.log('Sent to ' + CLIENT + ': 405 METHOD NOT ALLOWED')
                 break
