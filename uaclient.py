@@ -101,10 +101,8 @@ if __name__ == '__main__':
                     checking = hashlib.md5()
                     checking.update(bytes(PASSWORD, 'utf-8'))
                     checking.update(bytes(nonce, 'utf-8'))
-                    print('Hola: SIP/2.0 401 Unaunthorized')
                     NEW_USER = (USER + ' Authorization: Digest response=' +
                                 checking.hexdigest())
-                    print(data.decode('utf-8'))
                     my_socket.send(bytes(NEW_USER + '\r\n', 'utf-8'))
                     data = my_socket.recv(1024)
                     print(NEW_USER)
@@ -128,15 +126,15 @@ if __name__ == '__main__':
                 Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': '
                             + str(data) + '\r\n')
                 print(data)
-                CLIENT = data.split('o=')[1].split(' ')[1].split('\r')
-                AUDIOCLIENT = data.split('m=')[1].split(' ')[1].split(' R')[0]
-                if '200' in data.decode('utf-8'):
+                CLIENT = data.split('o=')[1].split(' ')[1].split('\r')[0]
+                AUDIOCLIENT = data.split('audio ')[1].split(' ')[0]
+                if '200' in data:
                     my_socket.send(bytes('ACK sip:' + USERNAME +
                                          ' SIP/2.0\r\n\r\n', 'utf-8'))
                     Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
                                 ' ACK sip:' + USERNAME + ' SIP/2.0\r\n')
-                    print(data.decode('utf-8'))
-                    aEjecutar = "./mp32rtp -i " + CLIENT + " -p " +\
+                    print(data)
+                    aEjecutar = "./mp32rtp -i " + CLIENT + " -p" +\
                                 AUDIOCLIENT + " < " + AUDIOFILE
                     print('SONG: ', aEjecutar)
                     os.system(aEjecutar)
