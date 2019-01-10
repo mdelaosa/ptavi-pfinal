@@ -91,7 +91,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
 
         CLIENT = self.client_address[0]
         while 1:
-            # Leyendo línea a línea lo que nos envía el cliente.
+            # Leyendo lo que nos envía el cliente.
             line = self.rfile.read().decode('utf-8')
             if not line:
                 break
