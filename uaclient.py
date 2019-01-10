@@ -79,8 +79,6 @@ if __name__ == '__main__':
         LOGFILE = opt['log_path']
         AUDIOFILE = opt['audio_path']
 
-
-
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
             my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             my_socket.connect((PROXY, int(PROXYPORT)))
@@ -125,7 +123,8 @@ if __name__ == '__main__':
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' +
                             ' '.join(USER.split()) + '\r\n')
                 my_socket.send(bytes(USER, 'utf-8'))
-                data = my_socket.recv(1024).decode('utf-8')
+                datas = my_socket.recv(1024)
+                data = datas.decode('utf-8')
                 Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': '
                             + str(data) + '\r\n')
                 print(data)
