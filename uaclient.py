@@ -127,7 +127,7 @@ if __name__ == '__main__':
                 data = my_socket.recv(1024).decode('utf-8')
                 Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': '
                             + str(data) + '\r\n')
-                print(data.decode('utf-8'))
+                print(data)
                 CLIENT = data.split('o=')[1].split(' ')[1].split('\r')
                 AUDIOCLIENT = data.split('m=')[1].split(' ')[1].split(' R')[0]
                 if '200' in data.decode('utf-8'):
