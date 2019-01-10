@@ -79,11 +79,15 @@ if __name__ == '__main__':
         LOGFILE = opt['log_path']
         AUDIOFILE = opt['audio_path']
 
-        USER = ''
+
 
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as my_socket:
             my_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             my_socket.connect((PROXY, int(PROXYPORT)))
+
+            if METHOD not in ['REGISTER', 'INVITE', 'ACK', 'BYE']:
+                print('Wrong method, try REGISTER, INVITE or BYE')
+                Logging.log('405 METHOD NOT ALLOWED. \r\n')
 
             if METHOD == 'REGISTER':
                 USER = (METHOD + ' sip:' + USERNAME + ':' + PORT +
@@ -118,47 +122,42 @@ if __name__ == '__main__':
                         '\r\n o=' + USERNAME + ' ' + SERVER + '\r\n' +
                         's=misesion \r\n t=0 \r\n m=audio ' + AUDIOPORT +
                         ' RTP \r\n')
-                print(USER)
                 Logging.log('Sent to ' + PROXY + ':' + PROXYPORT + ': ' +
                             ' '.join(USER.split()) + '\r\n')
                 my_socket.send(bytes(USER, 'utf-8'))
                 data = my_socket.recv(1024).decode('utf-8')
                 Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': '
                             + str(data) + '\r\n')
-                print(data)
+                print('Hola:', data)
                 CLIENT = data.split('o=')[1].split(' ')[1].split('\r')[0]
                 AUDIOCLIENT = data.split('audio ')[1].split(' ')[0]
+                print(AUDIOCLIENT)
                 if '200' in data:
-                    my_socket.send(bytes('ACK sip:' + USERNAME +
+                    my_socket.send(bytes('ACK sip:' + USERNAME + ' ' + SERVER +
                                          ' SIP/2.0\r\n\r\n', 'utf-8'))
                     Logging.log('Sent to ' + PROXY + ':' + PROXYPORT +
                                 ' ACK sip:' + USERNAME + ' SIP/2.0\r\n')
                     print(data)
-                    aEjecutar = "./mp32rtp -i " + CLIENT + " -p" +\
+                    aEjecutar = "./mp32rtp -i " + CLIENT + " -p " +\
                                 AUDIOCLIENT + " < " + AUDIOFILE
-                    print('SONG: ', aEjecutar)
+                    print('SONG SENT: ', aEjecutar)
                     os.system(aEjecutar)
                     Logging.log('Sent to ' + CLIENT + ':' + AUDIOCLIENT + ': '
                                 + aEjecutar + '\r\n')
 
             if METHOD == 'BYE':
-                print('FINISHING CONNECTION.')
                 USER = (METHOD + ' sip:' + USERNAME + ':' + PROXYPORT +
                         'SIP/2.0\r\n\r\n')
-                print(USER)
                 my_socket.send(bytes(USER, 'utf-8'))
-                data = my_socket.recv(1024)
+                data = my_socket.recv(1024).decode('utf-8')
+                print(data)
                 Logging.log('Received from' + PROXY + ':' + PROXYPORT + ': ' +
                             str(data))
                 Logging.log('Finishing connection. \r\n')
-
-            elif METHOD != ('REGISTER' or 'INVITE' or 'BYE'):
-                print('Wrong method, try REGISTER, INVITE or BYE')
-                Logging.log('405 METHOD NOT ALLOWED. \r\n')
 
     except ConnectionRefusedError:
         print("400 Connection Refused: Server not found")
         Logging.log('400 CONNECTION REFUSED. \r\n')
     except (IndexError or ValueError):
-        print("Usage: python3 uaclient.py config method option")
+        print("400 BAD REQUEST.")
         Logging.log('400 BAD REQUEST. \r\n')
