@@ -157,14 +157,14 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                     if nonce_recv != checking.hexdigest() or EXP < 0:
                         self.wfile.write(bytes('400 BAD REQUEST.\r\n',
                                                'utf-8'))
-                        print('400 BAD REQUEST.')
+                        print(' 400 BAD REQUEST.')
                         Logging.log('Sent to:' + CLIENT + ':' + C_PORT +
                                     ': 400 BAD REQUEST.\r\n')
                 break
 
             if METHOD == 'INVITE':
+                U2 = info[7].split('o=')[1].split(' ')[0]
                 if U1 in self.clientes:
-                    U2 = info[7].split('o=')[1].split(' ')[0]
                     if U2 in self.clientes:
                         Logging.log('Sent to' + self.clientes[U1]['IP'] + ':' +
                                     self.clientes[U1]['PORT'] + ':' +
@@ -172,20 +172,15 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                         rc = self.abrirsocket(line, self.clientes[U1]['IP'],
                                               self.clientes[U1]['PORT'])
                         self.wfile.write(bytes(rc + '\r\n', 'utf-8'))
-                        print('HOLA')
                 else:
                     self.wfile.write(bytes('404 USER NOT FOUND.\r\n', 'utf-8'))
                     print('404 USER NOT FOUND.')
                     Logging.log('Sent to:' + CLIENT +
                                 ': 404 USER NOT FOUND.\r\n')
-                break
-
             if METHOD == 'ACK':
-                Logging.log('Sent to' + self.clientes[U1]['IP'] +
-                            ':' + self.clientes[U1]['PORT'] + ':' +
-                            line + '\r\n')
-                rc = self.abrirsocket(line,
-                                      self.clientes[U1]['IP'],
+                Logging.log('Sent to' + self.clientes[U1]['IP'] + ':' +
+                            self.clientes[U1]['PORT'] + ':' + line + '\r\n')
+                rc = self.abrirsocket(line, self.clientes[U1]['IP'],
                                       self.clientes[U1]['PORT'])
 
                 self.wfile.write(bytes(rc + '\r\n', 'utf-8'))
